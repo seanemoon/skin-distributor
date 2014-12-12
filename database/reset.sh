@@ -1,9 +1,10 @@
 #!/bin/bash
 
 if [ -z $SKIN_DIST_DATABASE ]; then
-    echo No database specified, defaulting to test database.
-    SKIN_DIST_DATABASE=skintest
+    echo No database specified, using default database.
+    SKIN_DIST_DATABASE='distributor.db'
+    touch $SKIN_DIST_DATABASE
 fi
 
-psql $SKIN_DIST_DATABASE < DROP.sql
-psql $SKIN_DIST_DATABASE < CREATE.sql
+sqlite3 $SKIN_DIST_DATABASE < DROP.sql
+sqlite3 $SKIN_DIST_DATABASE < CREATE.sql
