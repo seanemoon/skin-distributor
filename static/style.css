@@ -1,0 +1,66 @@
+body {
+  text-align: center;
+  background: #ddd;
+  margin: 0;
+}
+
+.header {
+  padding: 1em 0 1em 0;
+  background: #333;
+  margin-bottom: 1em;
+}
+
+.title {
+  text-align: center;
+  font-size: 2em;
+  display: inline-block;
+  color: white;
+}
+
+.header-container {
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+label {
+  text-align: left;
+  float: left;
+}
+
+form h1 {
+  color: 555;
+  font-size: 1.5em;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 0.5em;
+  text-align: left;
+}
+
+.login, .signup {
+  background: #ddd;
+  margin: 1em;
+  padding: 1em;
+  display: inline-block;
+}
+.login {
+  margin-right: 0;
+}
+
+input {
+  display: block;
+  padding: 0.3em;
+  margin-bottom: 0.1em;
+}
+
+input[type="submit"] {
+  margin-top: 1em;
+}
+
+.container {
+  display: inline-block;
+  float: center;
+  background: white;
+  border: 1px solid #eee;
+  margin: 0 auto;
+}
