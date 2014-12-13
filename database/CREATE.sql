@@ -1,17 +1,17 @@
 CREATE TABLE account (
-  id         INTEGER PRIMARY KEY,
-  email      VARCHAR(320),
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  email      VARCHAR(320) UNIQUE,
   salt       VARCHAR,
   pass_hash  VARCHAR
 );
 
 CREATE TABLE event (
-  id         INTEGER PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
   account_id INTEGER REFERENCES account(id)
 );
 
 CREATE TABLE recipient (
-  id         INTEGER PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
   event_id   INTEGER REFERENCES event(id),
   email      VARCHAR(320),
   success    BOOLEAN,
@@ -19,7 +19,8 @@ CREATE TABLE recipient (
 );
 
 CREATE TABLE code (
-  recipient  integer REFERENCES recipient(id),
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  recipient  INTEGER REFERENCES recipient(id),
   name       VARCHAR,
   code       VARCHAR
 );
