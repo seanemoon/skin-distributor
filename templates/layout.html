@@ -1,6 +1,10 @@
 <!doctype html>
 <title>Distribute</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
+<script type=text/javascript>
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
 <div class=page>
   <div class=header>
     <div class=header-container>
@@ -16,5 +20,4 @@
     {% block body %}
     {% endblock %}
   </div>
-  <script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
 </div>

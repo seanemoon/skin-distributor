@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class=section>Events</div>
+  <div class=container>
+    <ul class=events>
+    {% for event in events %}
+    <li class=event>{{event.name|e}}
+    {% else %}
+    <!--<li class=message>You currently have no events</li>-->
+    {% endfor %}
+    <li id=create-event>Create</li>
+    </ul>
+  </div>
+  <!--<script type=text/javascript>
+    $(function() {
+      $('#create-event').bind('click', function() {
+        alert("trying")
+        $.getJSON($SCRIPT_ROOT + '/events/add', {
+          name: $('input[name="name"]').val()
+        }, function(data) {
+          console.log(data)
+          // Add a new div here
+          alert("Success!")
+        });
+        return false;
+      });
+    });
+  </script>-->
+{% endblock %}

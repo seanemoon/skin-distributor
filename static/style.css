@@ -1,10 +1,20 @@
 body {
+  font-family: sans-serif;
   text-align: center;
   background: #ddd;
   margin: 0;
 }
 
+.section {
+  float: left;
+  position: relative;
+  bottom: -1px;
+  left: 1px;
+  padding: 0.5em;
+  background-color: white;
+  display: inline-block;
 
+}
 .header {
   padding: 1em 0 1em 0;
   background: #333;
@@ -85,6 +95,31 @@ input[type="submit"] {
   border: 1px solid #555;
   padding: 1em 0em;
   margin-bottom: 1em;
+}
+
+ul {
+  margin: 0;
+  width: 100%;
+  padding: 0;
+
+  list-style-type: none;
+}
+
+ul li {
+  text-align: left;
+  background-color: #ddeeff;
+  border: 1px solid #667788;
+  margin-top: 1em;
+  padding: 1em;
+}
+ul li:nth-child(1) {
+  margin-top: 0;
+}
+
+#create-event {
+  text-align: center;
+  background-color: #ccffcc;
+  border: 2px solid #557755;
 }
 
 .container {

@@ -3,6 +3,7 @@ import sqlite3
 from flask import *
 from wtforms import *
 from models.Account import *
+from models.Event import *
 
 # Configuring our flask app
 app = Flask(__name__)
@@ -24,18 +25,21 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
+def is_logged_in():
+    return 'email' in session
+
 # Redirects the user to the login page if the user is not logged in.
 # Otherwise, this is a no-op.
 def ensure_logged_in():
-    if 'email' not in session:
+    if not is_logged_in():
         flash('Please log in.')
         return redirect(url_for('login_or_register'))
 
 @app.route('/events/')
 def events():
     ensure_logged_in()
-    events = None;
-    return render_template('events.html')
+    events = Event.get_events_for(session['account_id'], g.db)
+    return render_template('events.html', events=events)
 
 class EventForm(Form):
     name = TextField('Email Address', [
@@ -45,9 +49,13 @@ class EventForm(Form):
 # TODO(seanraff): finish this.
 @app.route('/events/add/')
 def add_event():
-    form = EventForm(request.form)
-    if request.method == 'POST' and form.validate():
-        event = Event(form.name.data)
+    result = {'success': False}
+    if is_logged_in():
+        name = request.args.get('name', None)
+        event = Event.create(name, session['account_id'], g.db)
+        result['success'] = True
+    return jsonify(result)
+
 
 class LoginForm(Form):
     email = TextField('Email Address', [
