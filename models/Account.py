@@ -40,8 +40,9 @@ class Account:
     def fetch(email, db):
         c = db.cursor()
         c.execute('SELECT * FROM account \
-            WHERE email = ?', (email,))
-        return Account(c.fetchone())
+            WHERE email=?', (email,))
+        result = c.fetchone()
+        return Account(result)
 
     def is_valid(self):
         return is_valid_email(email) and is_valid_password(password)
