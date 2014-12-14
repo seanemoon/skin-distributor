@@ -7,6 +7,7 @@ CREATE TABLE account (
 
 CREATE TABLE event (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  name       VARCHAR,
   account_id INTEGER REFERENCES account(id)
 );
 
