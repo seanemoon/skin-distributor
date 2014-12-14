@@ -9,8 +9,11 @@
       </div>
     </div>
   </div>
+  <div class=body-container>
     {% for message in get_flashed_messages() %}
       <div class=flash>{{ message }}</div>
     {% endfor %}
-    {% block body %}{% endblock %}
+    {% block body %}
+    {% endblock %}
+  </div>
 </div>

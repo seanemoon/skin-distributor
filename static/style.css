@@ -4,6 +4,7 @@ body {
   margin: 0;
 }
 
+
 .header {
   padding: 1em 0 1em 0;
   background: #333;
@@ -24,8 +25,8 @@ body {
 }
 
 label {
+  display: block;
   text-align: left;
-  float: left;
 }
 
 form h1 {
@@ -38,13 +39,15 @@ form h1 {
 }
 
 .login, .signup {
+  vertical-align: top;
   background: #ddd;
-  margin: 1em;
   padding: 1em;
   display: inline-block;
 }
+
 .login {
-  margin-right: 0;
+  bottom: 0;
+  margin-right: 1em;
 }
 
 input {
@@ -57,10 +60,29 @@ input[type="submit"] {
   margin-top: 1em;
 }
 
-.container {
+.body-container {
+  background: #eee;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+  padding: 1em;
   display: inline-block;
-  float: center;
+}
+
+.flash {
+  display: inline-block;
+  width:  100%;
+  background: white;
+  color: #333;
+  border: 1px solid #555;
+  padding: 1em 0em;
+  margin-bottom: 1em;
+}
+
+.container {
+  padding: 1em;
+  display: block;
   background: white;
   border: 1px solid #eee;
-  margin: 0 auto;
+  text-align: center;
 }

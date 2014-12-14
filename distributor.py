@@ -24,6 +24,40 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
+# Redirects the user to the login page if the user is not logged in.
+# Otherwise, this is a no-op.
+def ensure_logged_in():
+    if 'email' not in session:
+        flash('Please log in.')
+        return redirect(url_for('login_or_register'))
+
+@app.route('/events/')
+def events():
+    ensure_logged_in()
+    events = None;
+    return render_template('events.html')
+
+class EventForm(Form):
+    name = TextField('Email Address', [
+        validators.Required()
+    ])
+
+# TODO(seanraff): finish this.
+@app.route('/events/add/')
+def add_event():
+    form = EventForm(request.form)
+    if request.method == 'POST' and form.validate():
+        event = Event(form.name.data)
+
+class LoginForm(Form):
+    email = TextField('Email Address', [
+        validators.Length(min=3, max=360),
+        validators.Required()
+    ])
+    password = PasswordField('New Password', [
+        validators.Length(min=6, max=100),
+        validators.Required()
+    ])
 
 class RegistrationForm(Form):
     email = TextField('Email Address', [
@@ -40,23 +74,38 @@ class RegistrationForm(Form):
     ])
 
 @app.route('/')
-def show_entries():
-    form = RegistrationForm(request.form)
-    return render_template('login.html', form=form)
-
-@app.route('/events/<email>')
-def events(email):
-    return "hi"
+def login_or_register():
+    forms = {}
+    forms['register'] = RegistrationForm()
+    forms['login'] = LoginForm()
+    return render_template('login_or_register.html', forms=forms)
 
 @app.route('/register', methods=['POST'])
 def register():
     form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        user = Account(form.email.data, form.password.data)
+    if form.validate():
+        account = Account.create(form.email.data, form.password.data, g.db)
         flash('Thanks for registering')
-        user.add(g.db)
-        return redirect(url_for('events', email=user.email))
-    return render_template('login.html', form=form)
+        session['email'] = account.email
+        session['account_id'] = account.id
+        return redirect(url_for('events', email=account.email))
+    else:
+        return redirect(url_for('login_or_register'))
+
+@app.route('/login', methods=['POST'])
+def login():
+    form = LoginForm(request.form)
+    if form.validate():
+        account = Account.login(form.email.data, form.password.data, g.db)
+        if account is not None:
+            session['email'] = account.email
+            session['account_id'] = account.id
+            return redirect(url_for('events', email=account.email))
+        else:
+            flash('Invalid email or password.')
+            return redirect(url_for('login_or_register'))
+    flash('Invalid email or password.')
+    return redirect(url_for('login_or_register'))
 
 if __name__ == '__main__':
     app.run()

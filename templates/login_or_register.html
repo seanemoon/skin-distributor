@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class=container>
+    {% from "_formhelpers.html" import render_field %}
+    <div class=login>
+      <form method=post action="/login">
+          {{ render_field(forms['login'].email) }}
+          {{ render_field(forms['login'].password) }}
+        <input type=submit value=Login>
+      </form>
+    </div>
+    <div class=signup>
+      <form method=post action="/register">
+          {{ render_field(forms['register'].email) }}
+          {{ render_field(forms['register'].password) }}
+          {{ render_field(forms['register'].confirm) }}
+        <input type=submit value=Register>
+      </form>
+    </div>
+  </div>
+{% endblock %}
