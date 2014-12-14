@@ -40,7 +40,7 @@ form h1 {
 
 .login, .signup {
   vertical-align: top;
-  background: #ddd;
+  /*background: #ddd;*/
   padding: 1em;
   display: inline-block;
 }
@@ -48,6 +48,10 @@ form h1 {
 .login {
   bottom: 0;
   margin-right: 1em;
+  float: left;
+}
+.signup {
+  float: right;
 }
 
 input {
@@ -58,9 +62,13 @@ input {
 
 input[type="submit"] {
   margin-top: 1em;
+  float: right;
 }
 
 .body-container {
+  top: 0;
+  width: 80%;
+  max-width: 800px;
   background: #eee;
   display: block;
   margin: 0 auto;
@@ -85,4 +93,6 @@ input[type="submit"] {
   background: white;
   border: 1px solid #eee;
   text-align: center;
+  clear: both;
+  overflow: auto;
 }
