@@ -22,7 +22,7 @@ class Account:
     @staticmethod
     def login(email, password, db):
       account = Account.fetch(email, db)
-      if salted_hash(password, account.salt) == account.pass_hash:
+      if account and salted_hash(password, account.salt) == account.pass_hash:
           return account
       else:
           return None
@@ -42,6 +42,8 @@ class Account:
         c.execute('SELECT * FROM account \
             WHERE email=?', (email,))
         result = c.fetchone()
+        if result is None:
+            return None
         return Account(result)
 
     def is_valid(self):

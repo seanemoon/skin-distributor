@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
-  <div class=section>Create Event</div>
+  <div class=section>Create Template</div>
   <div class=container>
     {% from "_formhelpers.html" import render_field %}
-    <form method=post action="{{ url_for('create_event') }}">
+    <form method=post action="{{ url_for('create_template') }}">
       {{ render_field(form.sender, placeholder="Sender") }}
       {{ render_field(form.subject, placeholder="Subject") }}
       {{ render_field(form.header, placeholder="Header") }}

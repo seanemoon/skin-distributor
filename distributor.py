@@ -57,21 +57,29 @@ def add_event():
     return jsonify(result)
 
 
-class CreateEventForm(Form):
+class CreateTemplateForm(Form):
     sender = TextField('Sender', [validators.Required()])
     subject = TextField('Subject', [validators.Required()])
     header = TextField('Header', [validators.Required()])
     body = TextAreaField('Body', [validators.Required()])
 
 
-@app.route('/events/create/', methods=['POST', 'GET'])
-def create_event():
+@app.route('/template/create/', methods=['POST', 'GET'])
+def create_template():
     ensure_logged_in()
     if request.method == 'GET':
-        form = CreateEventForm()
-        return render_template('create_event.html', form=form)
+        form = CreateTemplateForm()
+        return render_template('create_template.html', form=form)
     else:
-        pass
+        form = CreateTemplateForm(request.form)
+        if form.validate():
+            # TODO(seanraff): Call this correctly
+            # Still need to grab data from the form
+            return render_template(url_for('events'))
+        else:
+            return redirect(url_for('create_template'))
+
+
 
 @app.route('/events/delete')
 def delete_event():
