@@ -57,6 +57,31 @@ def add_event():
     return jsonify(result)
 
 
+class CreateEventForm(Form):
+    sender = TextField('Sender', [validators.Required()])
+    subject = TextField('Subject', [validators.Required()])
+    header = TextField('Header', [validators.Required()])
+    body = TextAreaField('Body', [validators.Required()])
+
+
+@app.route('/events/create/', methods=['POST', 'GET'])
+def create_event():
+    ensure_logged_in()
+    if request.method == 'GET':
+        form = CreateEventForm()
+        return render_template('create_event.html', form=form)
+    else:
+        pass
+
+@app.route('/events/delete')
+def delete_event():
+    result = {'success': False}
+    if is_logged_in():
+        id = request.args.get('id', None)
+        Event.delete(id, g.db)
+        result['success'] = True
+    return jsonify(result)
+
 class LoginForm(Form):
     email = TextField('Email Address', [
         validators.Length(min=3, max=360),
@@ -99,6 +124,11 @@ def register():
         return redirect(url_for('events', email=account.email))
     else:
         return redirect(url_for('login_or_register'))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login_or_register'))
 
 @app.route('/login', methods=['POST'])
 def login():

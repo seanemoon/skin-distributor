@@ -33,8 +33,9 @@ class Event:
             WHERE account_id = ?', (account_id,))
         return [Event(row) for row in c.fetchall()]
 
-    def delete(self, db):
+    @staticmethod
+    def delete(id, db):
         c = db.cursor()
-        # Might need to make self.id a tuple (self.id,))
-        c.execute('DELETE FROM account \
-            WHERE id = ?' , self.id)
+        c.execute('DELETE FROM event \
+            WHERE id = ?' , (id,))
+        db.commit()

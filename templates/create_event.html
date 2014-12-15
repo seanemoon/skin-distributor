@@ -8,9 +8,36 @@
       {{ render_field(form.subject, placeholder="Subject") }}
       {{ render_field(form.header, placeholder="Header") }}
       {{ render_field(form.body, placeholder="Body") }}
-      <div id="code-types"></div>
-      <input type=button value='Add code type'>
+      <div class="codes">
+        Code Types
+        <div id="code-types"></div>
+        <input id=code-type-input type=text autocomplete="off" placeholder="Riot Kayle">
+        <input id=add-code-type type=button value='Add code type'>
+      </div>
       <input type=submit value='Create Template'>
     </form>
   </div>
+
+  <script type=text/javascript>
+  $(document).ready(function() {
+    $(function() {
+      var code_types = new Array();
+      $('#add-code-type').click(function() {
+        var type = $('#code-type-input').val()
+        if (type.length > 0) {
+          $('#code-types').append($('<div>' + type + '</div>'));
+          code_types[code_types.length] = type;
+          console.log(code_types);
+          $('#code-type-input').val('');
+        }
+      });
+      $('#code-type-input').keypress(function(event) {
+        if (event.which == 13) {
+          event.preventDefault();
+          $('#add-code-type').trigger('click');
+        }
+      });
+    });
+  });
+  </script>
 {% endblock %}
