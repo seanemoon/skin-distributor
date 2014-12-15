@@ -8,6 +8,7 @@ CREATE TABLE account (
 CREATE TABLE template (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   event_id    INTEGER REFERENCES event(id),
+  sender      VARCHAR,
   subject     VARCHAR,
   header      VARCHAR,
   body        TEXT,

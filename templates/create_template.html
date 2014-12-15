@@ -8,6 +8,8 @@
       {{ render_field(form.subject, placeholder="Subject") }}
       {{ render_field(form.header, placeholder="Header") }}
       {{ render_field(form.body, placeholder="Body") }}
+      {{ render_field(form.code_types) }}
+
       <div class="codes">
         Code Types
         <div id="code-types"></div>
@@ -22,15 +24,20 @@
   $(document).ready(function() {
     $(function() {
       var code_types = new Array();
+
+      // Handler for adding a new code type
       $('#add-code-type').click(function() {
         var type = $('#code-type-input').val()
         if (type.length > 0) {
           $('#code-types').append($('<div>' + type + '</div>'));
           code_types[code_types.length] = type;
           console.log(code_types);
+          $('form input[type="hidden"]').val(JSON.stringify(code_types))
           $('#code-type-input').val('');
         }
       });
+
+      // Make enter add a code when entering a code type
       $('#code-type-input').keypress(function(event) {
         if (event.which == 13) {
           event.preventDefault();

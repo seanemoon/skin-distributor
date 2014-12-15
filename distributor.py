@@ -4,6 +4,7 @@ from flask import *
 from wtforms import *
 from models.Account import *
 from models.Event import *
+from models.Template import *
 
 # Configuring our flask app
 app = Flask(__name__)
@@ -62,6 +63,7 @@ class CreateTemplateForm(Form):
     subject = TextField('Subject', [validators.Required()])
     header = TextField('Header', [validators.Required()])
     body = TextAreaField('Body', [validators.Required()])
+    code_types = HiddenField('Code Types', [validators.Optional()])
 
 
 @app.route('/template/create/', methods=['POST', 'GET'])
@@ -73,9 +75,18 @@ def create_template():
     else:
         form = CreateTemplateForm(request.form)
         if form.validate():
-            # TODO(seanraff): Call this correctly
-            # Still need to grab data from the form
-            return render_template(url_for('events'))
+            # TODO(seanraff): manage event ids
+            session['event_id'] = 1
+            template = Template.create(
+                session['event_id'], \
+                form.sender.data, \
+                form.subject.data, \
+                form.header.data, \
+                form.body.data, \
+                form.code_types.data, \
+                g.db \
+            )
+            return redirect(url_for('events'))
         else:
             return redirect(url_for('create_template'))
 
@@ -129,7 +140,7 @@ def register():
         flash('Thanks for registering')
         session['email'] = account.email
         session['account_id'] = account.id
-        return redirect(url_for('events', email=account.email))
+        return redirect(url_for('events'))
     else:
         return redirect(url_for('login_or_register'))
 

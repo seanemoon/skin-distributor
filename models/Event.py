@@ -16,6 +16,7 @@ class Event:
         values = (None, name, account_id)
         event = Event(values)
         event.add(db)
+        return event
 
     def add(self, db):
         c = db.cursor()
