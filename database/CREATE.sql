@@ -5,6 +5,14 @@ CREATE TABLE account (
   pass_hash  VARCHAR
 );
 
+CREATE TABLE template (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id  INTEGER REFERENCES event(id),
+  subject   VARCHAR,
+  header    VARCHAR,
+  body      TEXT
+);
+
 CREATE TABLE event (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   name       VARCHAR,
