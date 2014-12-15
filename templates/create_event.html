@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class=section>Create Event</div>
+  <div class=container>
+    {% from "_formhelpers.html" import render_field %}
+    <form method=post action="{{ url_for('create_event') }}">
+      {{ render_field(form.sender, placeholder="Sender") }}
+      {{ render_field(form.subject, placeholder="Subject") }}
+      {{ render_field(form.header, placeholder="Header") }}
+      {{ render_field(form.body, placeholder="Body") }}
+      <div id="code-types"></div>
+      <input type=button value='Add code type'>
+      <input type=submit value='Create Template'>
+    </form>
+  </div>
+{% endblock %}

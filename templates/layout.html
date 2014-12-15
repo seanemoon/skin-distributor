@@ -9,7 +9,15 @@
   <div class=header>
     <div class=header-container>
       <div class=title>
-        Title
+        Code Cannon
+      </div>
+      <div class='user-control'>
+      {% if session.email %}
+        <div class=toast><span class=email>{{ session.email }}</span></div>
+        <a href = "{{ url_for('logout') }}">Log out</a>
+      {% else %}
+        <a href = "{{ url_for('login_or_register') }}">Log in or Register</a>
+      {% endif %}
       </div>
     </div>
   </div>

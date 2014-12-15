@@ -4,26 +4,55 @@
   <div class=container>
     <ul class=events>
     {% for event in events %}
-    <li class=event>{{event.name|e}}
+    <li class=event id={{event.id}}>{{event.name|e}} <div class=delete>Delete</div></li>
     {% else %}
     <!--<li class=message>You currently have no events</li>-->
     {% endfor %}
-    <li id=create-event>Create</li>
+    <li id=create-event><a href="{{ url_for('create_event') }}">Create</a></li>
     </ul>
   </div>
+  <script type=text/javascript>
+  $(document).ready(function() {
+    // Event hover styling
+    $(function() {
+      $('.event').hover(
+        function() {
+          $(this).stop().fadeTo('fast', 1);
+          $(this).find('.delete').stop().fadeTo('fast', 1);
+        },
+        function() {
+          $(this).stop().fadeTo('fast', 0.7);
+          $(this).find('.delete').stop().fadeTo('fast', 0);
+        }
+      );
+    });
+
+    $(function() {
+      $('.delete').click(function() {
+        var id = $(this).parent().attr('id')
+        console.log(id)
+        $(this).parent().fadeOut('fast', function() {
+          $(this).remove();
+        });
+        $.getJSON($SCRIPT_ROOT + '/events/delete', {
+          id: id
+        }, function(data) {
+          // Delete the div here
+        });
+      });
+    });
+  });
+  </script>
   <!--<script type=text/javascript>
     $(function() {
       $('#create-event').bind('click', function() {
-        alert("trying")
         $.getJSON($SCRIPT_ROOT + '/events/add', {
-          name: $('input[name="name"]').val()
+          name: 'Testing' //$('input[name="name"]').val()
         }, function(data) {
           console.log(data)
-          // Add a new div here
-          alert("Success!")
         });
         return false;
       });
-    });
-  </script>-->
+      }); -->
+  </script>
 {% endblock %}

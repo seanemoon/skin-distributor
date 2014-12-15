@@ -4,17 +4,17 @@
   <div class=container>
     {% from "_formhelpers.html" import render_field %}
     <div class=login>
-      <form method=post action="/login">
-          {{ render_field(forms['login'].email) }}
-          {{ render_field(forms['login'].password) }}
+      <form method=post action="{{ url_for('login') }}">
+          {{ render_field(forms['login'].email, placeholder="Email", autocomplete="off") }}
+          {{ render_field(forms['login'].password, placeholder="Password", autocomplete="off") }}
         <input type=submit value=Login>
       </form>
     </div>
     <div class=signup>
-      <form method=post action="/register">
-          {{ render_field(forms['register'].email) }}
-          {{ render_field(forms['register'].password) }}
-          {{ render_field(forms['register'].confirm) }}
+      <form method=post action="{{ url_for('register') }}">
+          {{ render_field(forms['register'].email, placeholder="Email", autocomplete="off") }}
+          {{ render_field(forms['register'].password, placeholder="Password", autocomplete="off") }}
+          {{ render_field(forms['register'].confirm, placeholder="Repeat Password", autocomplete="off") }}
         <input type=submit value=Register>
       </form>
     </div>
