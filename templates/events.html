@@ -6,42 +6,73 @@
     {% for event in events %}
     <li class=event id={{event.id}}>{{event.name|e}} <div class=delete>Delete</div></li>
     {% else %}
-    <!--<li class=message>You currently have no events</li>-->
     {% endfor %}
-    <li id=create-event><a href="{{ url_for('create_template') }}">Create</a></li>
+    <li id=create-event>
+    <input type=text id=event-name-input name=event-name placeholder="Event Name"></input>
+      <div id="create-event-button">Creat Event</div>
+    </li>
     </ul>
   </div>
   <script type=text/javascript>
   $(document).ready(function() {
-    // Event hover styling
     $(function() {
-      $('.event').hover(
-        function() {
-          $(this).stop().fadeTo('fast', 1);
-          $(this).find('.delete').stop().fadeTo('fast', 1);
-        },
-        function() {
-          $(this).stop().fadeTo('fast', 0.7);
-          $(this).find('.delete').stop().fadeTo('fast', 0);
-        }
-      );
-    });
+      // Event hover styling
+      fade_in = function() {
+        $(this).stop().fadeTo('fast', 1);
+        $(this).find('.delete').stop().fadeTo('fast', 1);
+      };
 
-    // Delete controller
-    $(function() {
-      $('.delete').click(function() {
+      fade_out = function() {
+        $(this).stop().fadeTo('fast', 0.7);
+        $(this).find('.delete').stop().fadeTo('fast', 0);
+      };
+
+      $('.event').hover(
+        fade_in, fade_out
+      );
+
+      // Delete event controller
+      delete_handler = function(event) {
         var id = $(this).parent().attr('id')
-        console.log(id)
         $(this).parent().fadeOut('fast', function() {
           $(this).remove();
         });
         $.getJSON($SCRIPT_ROOT + '/events/delete', {
           id: id
         }, function(data) {
-          // Delete the div here
+        });
+        event.stopImmediatePropagation();
+      };
+      $('.delete').click(delete_handler);
+
+      // Event view controller
+      view_handler = function() {
+        var id = $(this).attr('id');
+        var url = "{{ url_for('view_event', event_id=id) }}" + id;
+        $(location).attr('href', url);
+      };
+      $('.event').click(view_handler);
+
+
+      // Create event controller
+      $('#create-event-button').click(function() {
+        var name = $('#event-name-input').val()
+        $.getJSON($SCRIPT_ROOT + '/events/add', {
+          name: name
+        }, function(data) {
+          var div = "<li class=event id=" + data['id'] + ">"
+                  + data['name']
+                  + "<div class=delete>Delete</div></li>"
+          div = $(div)
+          div.find('.delete').click(delete_handler);
+          div.hover(fade_in, fade_out)
+          div.click(view_handler);
+          $('.events').prepend(div)
         });
       });
+
     });
+
   });
   </script>
   <!--<script type=text/javascript>

@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class=section>{{ event.name }}</div>
+  <div class=container>
+    <div class='event'>
+      <div id="template">
+        Template
+        {% if template %}
+        <div class="view-button" >View</div>
+        <div class="edit-button">Edit</div>
+        {% else %}
+        <div class="create-button">Create</div>
+        {% endif %}
+      </div>
+      <div id="recipients">
+        Recipients
+        <div class="view-button">View</div>
+        <div class="add-button">Add</div>
+        <div class="clear-button">Clear</div>
+      </div>
+      <div id="codes">
+        Codes
+        <div class="view-button">View</div>
+        <div class="add-button">Add</div>
+        <div class="clear-button">Clear</div>
+      </div>
+    </div>
+  </div>
+  <script type=text/javascript>
+    $(document).ready(function() {
+      $(function() {
+        $('.event div').hover(
+          function() {
+            console.log('over')
+            $(this).children().stop().fadeTo('fast', 1);
+          },
+          function() {
+            $(this).children().stop().fadeTo('fast', 0);
+          }
+        )
+      });
+
+      // TEMPLATE BUTTONS
+      $(function() {
+        // Create Template
+        $('#template .create-button').click(function() {
+          var url = "{{ url_for('create_template', event_id=event.id) }}"
+          $(location).attr('href', url)
+        });
+
+        // View Template
+        $('#template .view-button').click(function() {
+          var url = "{{ url_for('view_template', event_id=event.id) }}"
+          $(location).attr('href', url)
+        });
+
+        // Edit Template
+        $('#template .edit-button').click(function() {
+          var url = "{{ url_for('edit_template', event_id=event.id) }}"
+          $(location).attr('href', url)
+        });
+      });
+    });
+    </script>
+{% endblock %}

@@ -3,7 +3,12 @@
   <div class=section>Create Template</div>
   <div class=container>
     {% from "_formhelpers.html" import render_field %}
-    <form method=post action="{{ url_for('create_template') }}">
+
+    {% if update %}
+      <form method=post action="{{ url_for('edit_template', event_id=event_id) }}">
+    {% else %}
+      <form method=post action="{{ url_for('create_template', event_id=event_id) }}">
+    {% endif %}
       {{ render_field(form.sender, placeholder="Sender") }}
       {{ render_field(form.subject, placeholder="Subject") }}
       {{ render_field(form.header, placeholder="Header") }}
@@ -12,7 +17,11 @@
 
       <div class="codes">
         Code Types
-        <div id="code-types"></div>
+        <div id="code-types">
+        {% for type in code_types %}
+        <div>{{type}}</div>
+        {% endfor %}
+        </div>
         <input id=code-type-input type=text autocomplete="off" placeholder="Riot Kayle">
         <input id=add-code-type type=button value='Add code type'>
       </div>
@@ -24,6 +33,10 @@
   $(document).ready(function() {
     $(function() {
       var code_types = new Array();
+      {% for code in code_types %}
+      code_types[code_types.length] = "{{code|safe}}"
+      {% endfor %}
+      $('form input[type="hidden"]').val(JSON.stringify(code_types))
 
       // Handler for adding a new code type
       $('#add-code-type').click(function() {

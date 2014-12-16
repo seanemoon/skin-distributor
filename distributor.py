@@ -26,19 +26,20 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
+
 def is_logged_in():
-    return 'email' in session
+    return session.get("email", None) is not None
+def not_logged_in():
+    return not is_logged_in() 
 
 # Redirects the user to the login page if the user is not logged in.
 # Otherwise, this is a no-op.
-def ensure_logged_in():
-    if not is_logged_in():
-        flash('Please log in.')
-        return redirect(url_for('login_or_register'))
+def request_login():
+    return redirect(url_for('login_or_register'))
 
 @app.route('/events/')
 def events():
-    ensure_logged_in()
+    if not_logged_in(): return request_login();
     events = Event.get_events_for(session['account_id'], g.db)
     return render_template('events.html', events=events)
 
@@ -55,8 +56,23 @@ def add_event():
         name = request.args.get('name', None)
         event = Event.create(name, session['account_id'], g.db)
         result['success'] = True
+        result['name'] = name
+        result['id'] = event.id
     return jsonify(result)
 
+@app.route('/events/<event_id>')
+def view_event(event_id):
+    if not_logged_in():
+        return request_login();
+    event = Event.fetch(session['account_id'], event_id, g.db)
+    template = Template.fetch(event_id, session['account_id'], g.db)
+    return render_template('event.html', event=event, template=template)
+
+@app.route('/events/create')
+def create_event():
+    if not_logged_in(): return request_login();
+    event = Event.create(session['account_id'], g.db)
+    return redirect(url_for('view_event', event_id=event.id))
 
 class CreateTemplateForm(Form):
     sender = TextField('Sender', [validators.Required()])
@@ -65,20 +81,31 @@ class CreateTemplateForm(Form):
     body = TextAreaField('Body', [validators.Required()])
     code_types = HiddenField('Code Types', [validators.Optional()])
 
+@app.route('/template/view/<event_id>')
+def view_template(event_id):
+    if not_logged_in(): return request_login();
+    template = Template.fetch(event_id, session['account_id'], g.db)
+    print (event_id, session['account_id'])
+    print template
+    return render_template('email_template.html', template=template)
 
-@app.route('/template/create/', methods=['POST', 'GET'])
-def create_template():
-    ensure_logged_in()
+@app.route('/template/edit/<event_id>', methods=['POST', 'GET'])
+def edit_template(event_id):
+    if not_logged_in(): return request_login();
     if request.method == 'GET':
-        form = CreateTemplateForm()
-        return render_template('create_template.html', form=form)
+        template = Template.fetch(event_id, session['account_id'], g.db)
+        form = CreateTemplateForm( \
+                sender=template.sender, \
+                subject=template.subject, \
+                header=template.header, \
+                body=template.body)
+        return render_template('create_template.html', \
+                form=form, event_id=event_id, update=True, code_types=template.code_types)
     else:
         form = CreateTemplateForm(request.form)
         if form.validate():
-            # TODO(seanraff): manage event ids
-            session['event_id'] = 1
-            template = Template.create(
-                session['event_id'], \
+            template = Template.fetch(event_id, session['account_id'], g.db)
+            template.update(
                 form.sender.data, \
                 form.subject.data, \
                 form.header.data, \
@@ -86,9 +113,33 @@ def create_template():
                 form.code_types.data, \
                 g.db \
             )
-            return redirect(url_for('events'))
+            return redirect(url_for('view_event', event_id=event_id))
         else:
-            return redirect(url_for('create_template'))
+            return redirect(url_for('create_template', event_id=event_id))
+
+
+
+@app.route('/template/create/<event_id>', methods=['POST', 'GET'])
+def create_template(event_id):
+    if not_logged_in(): return request_login();
+    if request.method == 'GET':
+        form = CreateTemplateForm()
+        return render_template('create_template.html', form=form, event_id=event_id)
+    else:
+        form = CreateTemplateForm(request.form)
+        if form.validate():
+            template = Template.create(
+                event_id, \
+                form.sender.data, \
+                form.subject.data, \
+                form.header.data, \
+                form.body.data, \
+                form.code_types.data, \
+                g.db \
+            )
+            return redirect(url_for('view_event', event_id=event_id))
+        else:
+            return redirect(url_for('create_template', event_id=event_id))
 
 
 

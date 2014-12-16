@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class=section>View Template</div>
+  <div class=container>
+  <style>
+    .email-template .container {
+      color: #555;
+      max-width: 800px;
+      border-bottom: 2px solid #aaa;
+      border-left: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      background-color: #f5f5f5;
+      padding: 2% 2% 0 2%;
+    }
+
+    .email-template .header{
+      text-align: center;
+      color: #444;
+      border-bottom: 2px solid #dedede;
+      border-right: 1px solid #dedede;
+      border-left: 1px solid #dedede;
+      padding: 0.5em;
+      background: rgba(255,255,255,0.3);
+      padding-bottom: 0.5em;
+      margin-bottom: 0.4;
+      font-family: Georgia, serif;
+      font-size: 1.25em;
+      text-align: center;
+    }
+
+    .email-template .message {
+      text-align: left;
+      border-bottom: 2px solid #dedede;
+      border-right: 1px solid #dedede;
+      border-left: 1px solid #dedede;
+      padding: 0.5em;
+      background: rgba(255,255,255,0.3);
+      margin-top: 0.5em;
+      font-size: 1.0em;
+      line-height: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    .email-template .code {
+      overflow: auto;
+      min-height: 20px;
+      color: #fff;
+      font-weight: bold;
+      margin-top: 1em;
+      border-top: 2px solid #777;
+      border-left: 1px solid #888;
+      border-right: 1px solid #888;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.5em;
+      overflow: auto;
+    }
+
+    .email-template .code .value {
+      float: right;
+      font-size: 1em;
+      font-family: "Courier New", Monospace;
+      font-weight: bold;
+      text-align: center;
+      color: white;
+      display: inline-block;
+    }
+
+    .email-template .code .name {
+      display: inline-block;
+    }
+
+    .email-template a {
+      text-decoration: none;
+    }
+
+    .email-template .disclaimer {
+      padding: 0.5em;
+      border-bottom: 2px solid #dedede;
+      border-right: 1px solid #dedede;
+      border-left: 1px solid #dedede;
+      background: rgba(255,255,255,0.3);
+      font-size: 0.9em;
+      color: #999;
+    }
+
+    @media (min-width: 800px) {
+      .email-template .code .value {
+        font-size: 1.3em;
+      }
+    }
+    
+    .email-template .signoff {
+      margin: 0.5em 0;
+      font-size: 0.8em;
+      text-align: right;
+      margin: 0.5em 0;
+      font-size: 0.8em;
+      color: #bbb;
+    }
+
+  </style>
+    <div class='email-template'>
+    <div class="container">
+      <div class='header'>
+        {{ template.header }}
+      </div>
+      <div class='message'>
+        {{ template.body }}
+        <div class='skins'>
+          {% for code in template.code_types %}
+            <div class="code">
+              <div class="name">{{code}}</div>
+              <div class="value">ABCEFGHIJKLMNOP1234567890</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+{% endblock %}

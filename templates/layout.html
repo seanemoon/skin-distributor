@@ -29,3 +29,14 @@
     {% endblock %}
   </div>
 </div>
+<script type=text/javascript>
+  $(document).ready(function() {
+    $(function() {
+      $('.title').click(function() {
+        var url = '{{ url_for("events") }}';
+        console.log(url);
+        $(location).attr('href', url);
+      }); 
+    });
+  });
+</script>

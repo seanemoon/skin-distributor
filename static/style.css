@@ -42,6 +42,10 @@ body {
   color: white;
 }
 
+.title:hover {
+  cursor: pointer;
+}
+
 .header-container {
   width: 80%;
   margin: 0 auto;
@@ -114,6 +118,81 @@ input[type="button"] {
   margin: 0;
   margin-top: 1em;
   float: right;
+}
+
+
+.view-button, .add-button, .create-button, .edit-button, .clear-button {
+  display: inline-block;
+  border: 1px solid #eee;
+  height: 1em;
+  float: right;
+  margin-left: 1em;
+  padding: 0.5em;
+  border-radius: 0.3em;
+  opacity: 0;
+}
+.view-button:hover, .add-button:hover, .create-button:hover, .edit-button:hover, .clear-button:hover {
+  cursor:pointer;
+  border: 1px solid #aaa;
+  opacity: 1;
+
+}
+
+.view-button {
+  background: #bbddff;
+  color: #555;
+}
+
+.add-button, .create-button {
+  background: #bbffbb;
+}
+
+.clear-button {
+  background: #ffbbbb;
+}
+
+.edit-button {
+  background: #ffffaa;
+}
+
+.event > div {
+  overflow: auto;
+  text-align: left;
+  padding: 1em;
+  border: 1px solid #eee;
+  margin-top: 1em;
+}
+.event:hover {
+  cursor: pointer;
+}
+
+.event > div:nth-child(1) {
+  margin-top: 0;
+}
+
+#event-name-input {
+  display: inline-block;
+  width: 65%;
+  margin-right: 1%;
+}
+
+#create-event-button {
+  background-color: #fff;
+  border: 1px solid #aaa;
+  padding: 0.3em;
+  display: inline-block;
+  transition: background .25s ease-in-out;
+  -moz-transition: background .25s ease-in-out;
+  -webkit-transition: background .25s ease-in-out;
+  transition: border .25s ease-in-out;
+  -moz-transition: border .25s ease-in-out;
+  -webkit-transition: border .25s ease-in-out;
+  width: 30%;
+}
+
+#create-event-button:hover {
+  background: #aaffaa;
+  border: 1px solid black;
 }
 
 form .codes {
@@ -216,15 +295,11 @@ ul li:nth-child(1) {
 #create-event {
   text-align: center;
   background-color: #ccffcc;
-  transition: background .25s ease-in-out;
-  -moz-transition: background .25s ease-in-out;
-  -webkit-transition: background .25s ease-in-out;
   border: 2px solid #557755;
 }
 
 #create-event:hover {
   cursor: pointer;
-  background-color: #aaddaa;
 }
 
 #create-event a {
