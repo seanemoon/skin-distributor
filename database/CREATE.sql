@@ -31,7 +31,11 @@ CREATE TABLE recipient (
 
 CREATE TABLE code (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  recipient_id INTEGER REFERENCES recipient(id),
   name         VARCHAR,
   code         VARCHAR
+);
+
+CREATE TABLE code_assignments (
+  recipient_id INTEGER REFERENCES recipient(id),
+  code_id      INTEGER REFERENCES code(id)
 );
