@@ -9,6 +9,7 @@ from models.Event import *
 from models.Template import *
 from models.Code import *
 from models.Recipient import *
+import parser
 
 # Configuring our flask app
 app = Flask(__name__)
@@ -41,21 +42,23 @@ def request_login():
     return redirect(url_for('login_or_register'))
 
 
-ALLOWED_EXTENSIONS = set(['txt', 'xls', 'csv'])
+ALLOWED_EXTENSIONS = set(['txt', 'xls', 'xlsx', 'csv'])
 def allowed_file(filename):
-    print '.' in filename
-    print filename.rsplit('.',1)[1]
     return '.' in filename and \
             filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/upload', methods=['POST', 'GET'])
 def upload_file():
-    if request.method == 'POST':
-        f = request.files['0']
-        if f and allowed_file(f.filename):
-            filename = secure_filename(f.filename)
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            
+    if is_logged_in():
+        if request.method == 'POST':
+            f = request.files['0']
+            if f and allowed_file(f.filename):
+                filename = secure_filename(str(session['account_id']) + f.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                f.save(filepath)
+                p = parser.FileParser(filepath)
+                values = p.extract_values()
+                os.remove(filepath)
 
 @app.route('/codes/clear')
 def clear_codes():
