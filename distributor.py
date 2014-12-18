@@ -1,10 +1,14 @@
 # imports for flask and our database
 import sqlite3
+import os
 from flask import *
 from wtforms import *
+from werkzeug import secure_filename
 from models.Account import *
 from models.Event import *
 from models.Template import *
+from models.Code import *
+from models.Recipient import *
 
 # Configuring our flask app
 app = Flask(__name__)
@@ -26,7 +30,6 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
-
 def is_logged_in():
     return session.get("email", None) is not None
 def not_logged_in():
@@ -36,6 +39,42 @@ def not_logged_in():
 # Otherwise, this is a no-op.
 def request_login():
     return redirect(url_for('login_or_register'))
+
+
+ALLOWED_EXTENSIONS = set(['txt', 'xls', 'csv'])
+def allowed_file(filename):
+    print '.' in filename
+    print filename.rsplit('.',1)[1]
+    return '.' in filename and \
+            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['POST', 'GET'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['0']
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename)
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+
+@app.route('/codes/clear')
+def clear_codes():
+    result = {'success': False}
+    if is_logged_in():
+        event_id = request.args.get('event_id', None)
+        Code.clear(event_id, session['account_id'], g.db)
+        result = {'success': True}
+    return jsonify(result)
+
+
+@app.route('/recipients/clear')
+def clear_recipients():
+    result = {'success': False}
+    if is_logged_in():
+        event_id = request.args.get('event_id', None)
+        Recipient.clear(event_id, session['account_id'], g.db)
+        result = {'success': True}
+    return jsonify(result)
 
 @app.route('/events/')
 def events():
@@ -66,7 +105,10 @@ def view_event(event_id):
         return request_login();
     event = Event.fetch(session['account_id'], event_id, g.db)
     template = Template.fetch(event_id, session['account_id'], g.db)
-    return render_template('event.html', event=event, template=template)
+    code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+    num_recipients = Recipient.num_recipients(event_id, g.db)
+    return render_template('event.html', event=event, template=template, \
+            code_info=code_info, num_recipients=num_recipients)
 
 @app.route('/events/create')
 def create_event():
@@ -85,6 +127,7 @@ class CreateTemplateForm(Form):
 def view_template(event_id):
     if not_logged_in(): return request_login();
     template = Template.fetch(event_id, session['account_id'], g.db)
+
     print (event_id, session['account_id'])
     print template
     return render_template('email_template.html', template=template)

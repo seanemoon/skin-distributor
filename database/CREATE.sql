@@ -30,8 +30,8 @@ CREATE TABLE recipient (
 );
 
 CREATE TABLE code (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  recipient   INTEGER REFERENCES recipient(id),
-  name        VARCHAR,
-  code        VARCHAR
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  recipient_id INTEGER REFERENCES recipient(id),
+  name         VARCHAR,
+  code         VARCHAR
 );

@@ -53,10 +53,22 @@
       };
       $('.event').click(view_handler);
 
+      // Enter handler for event creation
+      $('#event-name-input').keypress(function(event) {
+        if (event.which == 13) {
+          event.preventDefault();
+          $('#create-event-button').trigger('click');
+        }
+      });
+
 
       // Create event controller
       $('#create-event-button').click(function() {
         var name = $('#event-name-input').val()
+        if (name.length == 0) {
+          $('#event-name-input').trigger('focus');
+          return;
+        }
         $.getJSON($SCRIPT_ROOT + '/events/add', {
           name: name
         }, function(data) {

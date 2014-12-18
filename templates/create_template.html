@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-  <div class=section>Create Template</div>
+  {% if update %}
+    <div class=section>Edit Template</div>
+  {% else %}
+    <div class=section>Create Template</div>
+  {% endif %}
   <div class=container>
     {% from "_formhelpers.html" import render_field %}
 
@@ -25,7 +29,11 @@
         <input id=code-type-input type=text autocomplete="off" placeholder="Riot Kayle">
         <input id=add-code-type type=button value='Add code type'>
       </div>
-      <input type=submit value='Create Template'>
+      {% if update %}
+        <input type=submit value='Update Template'>
+      {% else %}
+        <input type=submit value='Create Template'>
+      {% endif %}
     </form>
   </div>
 

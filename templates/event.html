@@ -4,7 +4,7 @@
   <div class=container>
     <div class='event'>
       <div id="template">
-        Template
+        Email Template
         {% if template %}
         <div class="view-button" >View</div>
         <div class="edit-button">Edit</div>
@@ -14,30 +14,143 @@
       </div>
       <div id="recipients">
         Recipients
-        <div class="view-button">View</div>
-        <div class="add-button">Add</div>
-        <div class="clear-button">Clear</div>
+        {% if num_recipients %}
+          <div class="clear-button">Clear</div>
+          <div class="info">
+            {{ num_recipients }} recipients.
+          </div>
+        {% else %}
+        {% endif %}
       </div>
       <div id="codes">
         Codes
-        <div class="view-button">View</div>
-        <div class="add-button">Add</div>
-        <div class="clear-button">Clear</div>
+        {% if code_info %}
+          <div class="clear-button">Clear</div>
+          <div class="info">
+            {% for code in code_info %}
+              {{ code.name }}: {{ code.count }}
+            {% endfor %}
+          </div>
+        {% else %}
+        {% endif %}
       </div>
     </div>
   </div>
   <script type=text/javascript>
     $(document).ready(function() {
-      $(function() {
-        $('.event div').hover(
-          function() {
-            console.log('over')
-            $(this).children().stop().fadeTo('fast', 1);
+
+
+      function sendFiles(files, section) {
+
+        var data = new FormData();
+        $.each(files, function(key, value) {
+          data.append(key, value)
+        });
+
+        $.ajax({
+          type: 'post',
+          url: "{{url_for('upload_file')}}",
+          data: data,
+          success: function() {
+            console.log("hey!");
           },
-          function() {
-            $(this).children().stop().fadeTo('fast', 0);
+          dataType: 'json',
+          processData: false,
+          contentType: false,
+        });
+      }
+
+      function addDropZone(section) {
+          var dropZone = $('<div/>', {
+            class: 'drop_zone',
+            text: 'Drop ' + section + ' file here.',
+          });
+
+          // Handle drop zone file drop
+          function handleFileDrop(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            event.dataTransfer = event.originalEvent.dataTransfer;
+            $(dropZone).removeClass('dragover');
+            var files = event.dataTransfer.files;
+            sendFiles(files, "lol")
+            for (var i = 0; i < files.length; i++) {
+              var f = files[i];
+              console.log(f.name);
+            }
           }
-        )
+
+          // Handle drag over drop zone
+          function handleDragOver(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            event.dataTransfer = event.originalEvent.dataTransfer;
+            event.dataTransfer.dropEffect = 'copy';
+            $(dropZone).addClass('dragover');
+          }
+
+          function handleDragLeave(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            $(dropZone).removeClass('dragover');
+          }
+
+          dropZone.bind('dragover', handleDragOver);
+          dropZone.bind('dragleave', handleDragLeave);
+          dropZone.bind('drop', handleFileDrop);
+          dropZone.appendTo('#' + section);
+      }
+      {% if code_info %}
+      {% else %}
+        addDropZone('codes');
+      {% endif %}
+
+      {% if num_recipients %}
+      {% else %}
+        addDropZone('recipients');
+      {% endif %}
+
+      // RECIPIENTS BUTTONS
+      $(function() {
+        // Clear Recipients
+        var processing = false;
+        $('#recipients .clear-button').click(function() {
+          if (!processing) {
+            processing = true
+            $.getJSON("{{url_for('clear_recipients')}}", {
+              event_id: {{event.id}}
+            }, function(data) {
+              // Change the page
+              if (data['success']) {
+                addDropZone('recipients');
+                $('#recipients .clear-button').remove();
+                $('#recipients .info').remove();
+              }
+              processing = false;
+            });
+          }
+        });
+      });
+
+      // CODES BUTTONS
+      $(function() {
+        // Clear Codes
+        var processing = false;
+        $('#codes .clear-button').click(function() {
+          if (!processing) {
+            processing = true;
+            $.getJSON("{{url_for('clear_codes')}}", {
+              event_id: {{event.id}}
+            }, function(data) {
+              if (data['success']) {
+                addDropZone('codes');
+                $('#codes .clear-button').remove();
+                $('#codes .info').remove();
+              }
+              processing = false;
+            });
+          }
+        });
       });
 
       // TEMPLATE BUTTONS
@@ -60,6 +173,5 @@
           $(location).attr('href', url)
         });
       });
-    });
-    </script>
+    }); </script>
 {% endblock %}

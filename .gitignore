@@ -1,2 +1,3 @@
 database/distributor.db
 **/*.pyc
+uploads/**
