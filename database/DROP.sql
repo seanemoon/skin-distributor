@@ -3,3 +3,4 @@ DROP TABLE IF EXISTS template;
 DROP TABLE IF EXISTS recipient;
 DROP TABLE IF EXISTS event;
 DROP TABLE IF EXISTS account;
+DROP TABLE IF EXISTS code_assignment;

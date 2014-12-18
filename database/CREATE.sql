@@ -30,12 +30,13 @@ CREATE TABLE recipient (
 );
 
 CREATE TABLE code (
-  id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  name         VARCHAR,
-  code         VARCHAR
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id    INTEGER REFERENCES event(id),
+  name        VARCHAR,
+  code        VARCHAR
 );
 
-CREATE TABLE code_assignments (
+CREATE TABLE code_assignment (
   recipient_id INTEGER REFERENCES recipient(id),
   code_id      INTEGER REFERENCES code(id)
 );
