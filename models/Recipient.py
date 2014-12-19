@@ -45,7 +45,6 @@ class Recipient:
     @staticmethod
     def send(event_id, db):
         def generate_assignments():
-            print "Generating assignments..."
             codes = Code.fetch(event_id, db)
             recipients = Recipient.fetch(event_id, db)
             assignments = []
@@ -56,8 +55,7 @@ class Recipient:
                     assignments.append({'code_id': code_id, 'recipient_id': r.id})
             return assignments
 
-        def persist_assignments():
-            print "Persisting assignments..."
+        def insert_assignments():
             assignments = generate_assignments()
             print assignments
             c = db.cursor()
@@ -65,11 +63,13 @@ class Recipient:
                 c.execute('\
                     INSERT INTO code_assignment (recipient_id, code_id)\
                     VALUES (?, ?)', (a['recipient_id'], a['code_id']))
-            db.commit()
-
-        persist_assignments()
+        insert_assignments()
 
         c = db.cursor()
+        c.execute('\
+            UPDATE event\
+            SET has_sent = 1\
+            WHERE id = ?', (event_id,))
         c.execute('\
             UPDATE recipient\
             SET should_send = 1\

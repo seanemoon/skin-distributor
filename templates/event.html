@@ -169,9 +169,10 @@
             $.getJSON($SCRIPT_ROOT + '/events/send/' + {{event.id}}, {
             }, function(data) {
               // Change the page
-              console.log(data);
               if (data['success']) {
                 sendButton.remove();
+                $('.clear-button').remove();
+                $('.edit-button').remove();
                 addStatusButton();
               }
               processing = false;
@@ -193,7 +194,11 @@
         addDropZone('recipients');
       {% endif %}
 
-      addSendButton();
+      if ({{has_sent}}) {
+        addStatusButton();
+      } else {
+        addSendButton();
+      }
 
       // TEMPLATE BUTTONS
       $(function() {

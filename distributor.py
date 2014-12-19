@@ -127,8 +127,9 @@ def view_event(event_id):
     template = Template.fetch(event_id, session['account_id'], g.db)
     code_info = Code.fetch_info(event_id, session['account_id'], g.db)
     num_recipients = Recipient.num_recipients(event_id, g.db)
+    has_sent = Event.has_sent(event_id, g.db)
     return render_template('event.html', event=event, template=template, \
-            code_info=code_info, num_recipients=num_recipients)
+            code_info=code_info, num_recipients=num_recipients, has_sent=has_sent)
 
 @app.route('/events/create')
 def create_event():
@@ -204,8 +205,14 @@ def create_template(event_id):
 @app.route('/events/send/<event_id>')
 def send_codes(event_id):
     result = {'success': False}
-    if is_logged_in():
-        if Event.belongs_to(event_id, session['account_id'], g.db):
+    num_recipients = Recipient.num_recipients(event_id, g.db)
+    code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db) \
+        and not Event.has_sent(event_id, g.db) \
+        and Template.exists(event_id, g.db) \
+        and num_recipients > 0 \
+        and Event.has_enough_codes(event_id, session['account_id'], num_recipients, code_info, g.db):
             Recipient.send(event_id, g.db)
             result = {'success': True}
     return jsonify(result)
@@ -270,7 +277,6 @@ def register():
         return redirect(url_for('events'))
     else:
         return redirect(url_for('login_or_register'))
-
 
 @app.route('/logout')
 def logout():

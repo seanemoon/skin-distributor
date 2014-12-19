@@ -77,8 +77,3 @@ class Code:
                 WHERE E.id = ? AND E.account_id = ?\
             )', (event_id, account_id))
         db.commit()
-
-
-
-
-

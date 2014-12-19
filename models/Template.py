@@ -8,6 +8,28 @@ class Template:
             self.code_types = json.loads(self.code_types)
 
     @staticmethod
+    def exists(event_id, db):
+        c = db.cursor()
+        c.execute('\
+            SELECT COUNT(*)\
+            FROM TEMPLATE\
+            WHERE event_id = ?', (event_id,))
+        result = c.fetchone()
+        return result is not None and result > 0
+
+    @staticmethod
+    def code_types(event_id, db):
+        c = db.cursor()
+        c.execute('\
+            SELECT code_types\
+            FROM template\
+            WHERE event_id = ?', (event_id,))
+        result = c.fetchall()
+        if result is None: return []
+        parsed = [row[0] for row in result]
+        return parsed
+
+    @staticmethod
     def create(event_id, sender, subject, header, body, code_types, db):
         values = (None, event_id, sender, subject, header, body, code_types)
         template = Template(values)

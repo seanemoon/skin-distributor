@@ -1,24 +1,25 @@
-CREATE TABLE account (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  email       VARCHAR(320) UNIQUE,
-  salt        VARCHAR,
-  pass_hash   VARCHAR
+CREATe table account (
+  id          integer primary key autoincrement,
+  email       varchar(320) unique,
+  salt        varchar,
+  pass_hash   varchar
 );
 
-CREATE TABLE template (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_id    INTEGER REFERENCES event(id),
-  sender      VARCHAR,
-  subject     VARCHAR,
-  header      VARCHAR,
-  body        TEXT,
-  code_types  VARCHAR[]
+create table template (
+  id          integer primary key autoincrement,
+  event_id    integer references event(id),
+  sender      varchar,
+  subject     varchar,
+  header      varchar,
+  body        text,
+  code_types  varchar[]
 );
 
-CREATE TABLE event (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  name        VARCHAR,
-  account_id  INTEGER REFERENCES account(id)
+create table event (
+  id          integer primary key autoincrement,
+  name        varchar,
+  account_id  integer references account(id),
+  has_sent    BOOLEAN
 );
 
 CREATE TABLE recipient (
