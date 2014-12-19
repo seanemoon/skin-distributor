@@ -37,13 +37,11 @@ class Template:
         return template
 
     @staticmethod
-    def fetch(event_id, account_id, db):
+    def fetch(event_id, db):
         c = db.cursor()
-        c.execute('SELECT \
-            T.id, T.event_id, T.sender, T.subject, T.header, T.body, T.code_types \
-            FROM template AS T JOIN event AS E ON T.event_id = E.id \
-            WHERE E.id = ?  \
-            AND E.account_id = ?', (event_id, account_id))
+        c.execute('SELECT *\
+            FROM template\
+            WHERE event_id = ?', (event_id,))
         result = c.fetchone()
         if result is None: return None
         else: return Template(result)

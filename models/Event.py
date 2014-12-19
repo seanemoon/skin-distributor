@@ -67,10 +67,10 @@ class Event:
         return [Event(row) for row in c.fetchall()]
 
     @staticmethod
-    def fetch(account_id, event_id, db):
+    def fetch(event_id, db):
         c = db.cursor()
         c.execute('SELECT * from event \
-            WHERE account_id = ? AND id = ?', (account_id, event_id))
+            WHERE id = ?', (event_id,))
         result = c.fetchone()
         if result is None:
             return result

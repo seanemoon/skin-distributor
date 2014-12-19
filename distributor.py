@@ -51,49 +51,52 @@ def allowed_file(filename):
 @app.route('/upload/<section>/<event_id>', methods=['POST', 'GET'])
 def upload_file(section, event_id):
     def upload_codes(event_id, codes):
-        Code.upload(event_id, session['account_id'], codes, g.db)
-        code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+        Code.upload(event_id, codes, g.db)
+        code_info = Code.fetch_info(event_id, g.db)
         return code_info
 
     def upload_recipients(event_id, recipients):
-        Recipient.upload(event_id, session['account_id'], recipients, g.db)
+        Recipient.upload(event_id, recipients, g.db)
         num_recipients = Recipient.num_recipients(event_id, g.db)
         return num_recipients
 
-    if is_logged_in():
-        if request.method == 'POST':
-            f = request.files['0']
-            if f and allowed_file(f.filename):
-                filename = secure_filename(str(session['account_id']) + f.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                f.save(filepath)
-                p = parser.FileParser(filepath)
-                values = p.extract_values()
-                os.remove(filepath)
-                upload_handlers = {
-                    "recipients": upload_recipients,
-                    "codes": upload_codes
-                }
-                info = upload_handlers[section](event_id, values)
-                return json.dumps({'success':True, 'info':info}), 200, {'ContentType':'application/json'}
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db):
+            if request.method == 'POST':
+                f = request.files['0']
+                if f and allowed_file(f.filename):
+                    filename = secure_filename(str(session['account_id']) + f.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    f.save(filepath)
+                    p = parser.FileParser(filepath)
+                    values = p.extract_values()
+                    os.remove(filepath)
+                    upload_handlers = {
+                        "recipients": upload_recipients,
+                        "codes": upload_codes
+                    }
+                    info = upload_handlers[section](event_id, values)
+                    return json.dumps({'success':True, 'info':info}), 200, {'ContentType':'application/json'}
 
 @app.route('/clear/codes')
 def clear_codes():
     result = {'success': False}
-    if is_logged_in():
-        event_id = request.args.get('event_id', None)
-        Code.clear(event_id, session['account_id'], g.db)
-        result = {'success': True}
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db):
+            event_id = request.args.get('event_id', None)
+            Code.clear(event_id, g.db)
+            result = {'success': True}
     return jsonify(result)
 
 
 @app.route('/clear/recipients')
 def clear_recipients():
     result = {'success': False}
-    if is_logged_in():
-        event_id = request.args.get('event_id', None)
-        Recipient.clear(event_id, session['account_id'], g.db)
-        result = {'success': True}
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db):
+            event_id = request.args.get('event_id', None)
+            Recipient.clear(event_id, g.db)
+            result = {'success': True}
     return jsonify(result)
 
 @app.route('/events/')
@@ -107,7 +110,6 @@ class EventForm(Form):
         validators.Required()
     ])
 
-# TODO(seanraff): finish this.
 @app.route('/events/add/')
 def add_event():
     result = {'success': False}
@@ -121,11 +123,12 @@ def add_event():
 
 @app.route('/events/<event_id>')
 def view_event(event_id):
-    if not_logged_in():
-        return request_login();
-    event = Event.fetch(session['account_id'], event_id, g.db)
-    template = Template.fetch(event_id, session['account_id'], g.db)
-    code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+    if not_logged_in() \
+        or not Event.belongs_to(event_id, session['account_id'], g.db):
+            return request_login();
+    event = Event.fetch(event_id, g.db)
+    template = Template.fetch(event_id, g.db)
+    code_info = Code.fetch_info(event_id, g.db)
     num_recipients = Recipient.num_recipients(event_id, g.db)
     has_sent = Event.has_sent(event_id, g.db)
     return render_template('event.html', event=event, template=template, \
@@ -146,15 +149,19 @@ class CreateTemplateForm(Form):
 
 @app.route('/template/view/<event_id>')
 def view_template(event_id):
-    if not_logged_in(): return request_login();
-    template = Template.fetch(event_id, session['account_id'], g.db)
+    if not_logged_in() \
+        or not Event.belongs_to(event_id, session['account_id'], g.db):
+            return request_login();
+    template = Template.fetch(event_id, g.db)
     return render_template('email_template.html', template=template)
 
 @app.route('/template/edit/<event_id>', methods=['POST', 'GET'])
 def edit_template(event_id):
-    if not_logged_in(): return request_login();
+    if not_logged_in() \
+        or not Event.belongs_to(event_id, session['account_id'], g.db):
+            return request_login()
     if request.method == 'GET':
-        template = Template.fetch(event_id, session['account_id'], g.db)
+        template = Template.fetch(event_id, g.db)
         form = CreateTemplateForm( \
                 sender=template.sender, \
                 subject=template.subject, \
@@ -165,7 +172,7 @@ def edit_template(event_id):
     else:
         form = CreateTemplateForm(request.form)
         if form.validate():
-            template = Template.fetch(event_id, session['account_id'], g.db)
+            template = Template.fetch(event_id, g.db)
             template.update(
                 form.sender.data, \
                 form.subject.data, \
@@ -182,7 +189,9 @@ def edit_template(event_id):
 
 @app.route('/template/create/<event_id>', methods=['POST', 'GET'])
 def create_template(event_id):
-    if not_logged_in(): return request_login();
+    if not_logged_in() \
+        or not Event.belongs_to(event_id, session['account_id'], g.db):
+            return request_login();
     if request.method == 'GET':
         form = CreateTemplateForm()
         return render_template('create_template.html', form=form, event_id=event_id)
@@ -206,7 +215,7 @@ def create_template(event_id):
 def send_codes(event_id):
     result = {'success': False}
     num_recipients = Recipient.num_recipients(event_id, g.db)
-    code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+    code_info = Code.fetch_info(event_id, g.db)
     if is_logged_in() \
         and Event.belongs_to(event_id, session['account_id'], g.db) \
         and not Event.has_sent(event_id, g.db) \
@@ -220,8 +229,8 @@ def send_codes(event_id):
 @app.route('/events/status/<event_id>')
 def view_status(event_id):
     result = {'success': False}
-    if is_logged_in():
-        if Event.belongs_to(event_id, session['account_id'], g.db):
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db):
             status = Recipient.get_status(event_id, g.db)
             result = {'success': True}
     return jsonify(result)
@@ -229,10 +238,11 @@ def view_status(event_id):
 @app.route('/events/delete')
 def delete_event():
     result = {'success': False}
-    if is_logged_in():
-        id = request.args.get('id', None)
-        Event.delete(id, g.db)
-        result['success'] = True
+    if is_logged_in() \
+        and Event.belongs_to(event_id, session['account_id'], g.db):
+            id = request.args.get('id', None)
+            Event.delete(id, g.db)
+            result['success'] = True
     return jsonify(result)
 
 class LoginForm(Form):

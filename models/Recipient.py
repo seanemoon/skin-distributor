@@ -21,15 +21,14 @@ class Recipient:
         return result[0]
 
     @staticmethod
-    def upload(event_id, account_id, recipients, db):
-        if Event.belongs_to(event_id, account_id, db):
-            c = db.cursor()
-            for recipient in recipients:
-                c.execute('\
-                    INSERT INTO recipient\
-                    (event_id, email)\
-                    VALUES (?, ?)', (event_id, recipient))
-            db.commit() 
+    def upload(event_id, recipients, db):
+        c = db.cursor()
+        for recipient in recipients:
+            c.execute('\
+                INSERT INTO recipient\
+                (event_id, email)\
+                VALUES (?, ?)', (event_id, recipient))
+        db.commit() 
 
     @staticmethod
     def fetch(event_id, db):
@@ -57,7 +56,6 @@ class Recipient:
 
         def insert_assignments():
             assignments = generate_assignments()
-            print assignments
             c = db.cursor()
             for a in assignments:
                 c.execute('\
@@ -100,17 +98,10 @@ class Recipient:
             parsed.append(entry)
         return parsed
 
-          
-
     @staticmethod
-    def clear(event_id, account_id, db):
+    def clear(event_id, db):
         c = db.cursor()
         c.execute('\
           DELETE FROM recipient\
-          WHERE recipient.id IN (\
-              SELECT R.id\
-              FROM recipient AS R\
-              JOIN event AS E ON E.id = R.event_id\
-              WHERE E.id = ? AND E.account_id = ?\
-          )', (event_id, account_id))
+          WHERE event_id = ?', (event_id,))
         db.commit()

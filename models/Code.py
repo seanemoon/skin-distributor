@@ -18,36 +18,33 @@ class Code:
         parsed = [Code(row) for row in result]
         grouped = {}
         for entry in parsed:
-            print entry
             group = grouped.get(entry.name, [])
             group.append(entry)
             grouped[entry.name] = group
         return grouped
 
     @staticmethod
-    def fetch_info(event_id, account_id, db):
+    def fetch_info(event_id, db):
         c = db.cursor()
         c.execute("\
-            SELECT C.name, COUNT(C.name)\
-            FROM code as C\
-            JOIN event as E ON E.id = C.event_id\
-            WHERE E.id = ? and E.account_id = ?\
-            GROUP BY C.name", (event_id, account_id))
+            SELECT name, COUNT(name)\
+            FROM code \
+            WHERE event_id = ? \
+            GROUP BY name", (event_id,))
         result = c.fetchall()
         if result is None: return None
         parsed = [{'name': row[0], 'count': row[1]} for row in result]
         return parsed
 
     @staticmethod
-    def upload(event_id, account_id, codes, db):
-        if Event.belongs_to(event_id, account_id, db):
-            c = db.cursor()
-            for code in codes:
-                c.execute('\
-                    INSERT INTO code\
-                    (event_id, name, code)\
-                    VALUES (?, ?, ?)', (event_id, "TEST", code))
-            db.commit()
+    def upload(event_id, codes, db):
+        c = db.cursor()
+        for code in codes:
+            c.execute('\
+                INSERT INTO code\
+                (event_id, name, code)\
+                VALUES (?, ?, ?)', (event_id, "TEST", code))
+        db.commit()
 
     @staticmethod
     def fetch_assigned_info(event_id, account_id, db):
@@ -66,14 +63,9 @@ class Code:
         return parsed
     
     @staticmethod
-    def clear(event_id, account_id, db):
+    def clear(event_id, db):
         c = db.cursor()
         c.execute('\
             DELETE FROM code\
-            WHERE code.id in (\
-                SELECT C.id\
-                FROM code AS C\
-                JOIN event AS E ON E.id = C.event_id\
-                WHERE E.id = ? AND E.account_id = ?\
-            )', (event_id, account_id))
+            where event_id = ?', (event_id,))
         db.commit()
