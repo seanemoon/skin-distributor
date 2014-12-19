@@ -47,11 +47,23 @@ def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route('/upload', methods=['POST', 'GET'])
-def upload_file():
+# section = {recipients, codes}
+@app.route('/upload/<section>/<event_id>', methods=['POST', 'GET'])
+def upload_file(section, event_id):
+    def upload_codes(event_id, codes):
+        Code.upload(event_id, session['account_id'], codes, g.db)
+        code_info = Code.fetch_info(event_id, session['account_id'], g.db)
+        return code_info
+
+    def upload_recipients(event_id, recipients):
+        Recipient.upload(event_id, session['account_id'], recipients, g.db)
+        num_recipients = Recipient.num_recipients(event_id, g.db)
+        return num_recipients
+
     if is_logged_in():
         if request.method == 'POST':
             f = request.files['0']
+            print section
             if f and allowed_file(f.filename):
                 filename = secure_filename(str(session['account_id']) + f.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -59,8 +71,14 @@ def upload_file():
                 p = parser.FileParser(filepath)
                 values = p.extract_values()
                 os.remove(filepath)
+                upload_handlers = {
+                    "recipients": upload_recipients,
+                    "codes": upload_codes
+                }
+                info = upload_handlers[section](event_id, values)
+                return json.dumps({'success':True, 'info':info}), 200, {'ContentType':'application/json'}
 
-@app.route('/codes/clear')
+@app.route('/clear/codes')
 def clear_codes():
     result = {'success': False}
     if is_logged_in():
@@ -70,7 +88,7 @@ def clear_codes():
     return jsonify(result)
 
 
-@app.route('/recipients/clear')
+@app.route('/clear/recipients')
 def clear_recipients():
     result = {'success': False}
     if is_logged_in():

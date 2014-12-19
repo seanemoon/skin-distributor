@@ -1,3 +1,5 @@
+from Event import *
+
 class Code:
     def __init__(self, values): pass
 
@@ -18,6 +20,17 @@ class Code:
         for e in parsed:
             print e
         return parsed
+
+    @staticmethod
+    def upload(event_id, account_id, codes, db):
+        if Event.belongs_to(event_id, account_id, db):
+            c = db.cursor()
+            for code in codes:
+                c.execute('\
+                    INSERT INTO code\
+                    (event_id, name, code)\
+                    VALUES (?, ?, ?)', (event_id, "TEST", code))
+            db.commit()
 
     @staticmethod
     def fetch_assigned_info(event_id, account_id, db):

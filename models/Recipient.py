@@ -1,3 +1,5 @@
+from Event import *
+
 class Recipient:
     def __init__(self, values): pass
 
@@ -12,7 +14,19 @@ class Recipient:
         return result[0]
 
     @staticmethod
+    def upload(event_id, account_id, recipients, db):
+        if Event.belongs_to(event_id, account_id, db):
+            c = db.cursor()
+            for recipient in recipients:
+                c.execute('\
+                    INSERT INTO recipient\
+                    (event_id, email)\
+                    VALUES (?, ?)', (event_id, recipient))
+            db.commit() 
+
+    @staticmethod
     def clear(event_id, account_id, db):
+        print "Clearing..."
         c = db.cursor()
         c.execute('\
           DELETE FROM recipient\

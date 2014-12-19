@@ -15,7 +15,6 @@
       <div id="recipients">
         Recipients
         {% if num_recipients %}
-          <div class="clear-button">Clear</div>
           <div class="info">
             {{ num_recipients }} recipients.
           </div>
@@ -25,7 +24,6 @@
       <div id="codes">
         Codes
         {% if code_info %}
-          <div class="clear-button">Clear</div>
           <div class="info">
             {% for code in code_info %}
               {{ code.name }}: {{ code.count }}
@@ -38,26 +36,33 @@
   </div>
   <script type=text/javascript>
     $(document).ready(function() {
-
-
-      function sendFiles(files, section) {
-
-        var data = new FormData();
-        $.each(files, function(key, value) {
-          data.append(key, value)
+      function addClearButton(section) {
+        var clearButton = $('<div/>', {
+          class: 'clear-button',
+          text: 'Clear'
         });
 
-        $.ajax({
-          type: 'post',
-          url: "{{url_for('upload_file')}}",
-          data: data,
-          success: function() {
-            console.log("hey!");
-          },
-          dataType: 'json',
-          processData: false,
-          contentType: false,
-        });
+        function addClickHandler() {
+          var processing = false;
+          clearButton.click(function() {
+            if (!processing) {
+              processing = true
+              $.getJSON($SCRIPT_ROOT + '/clear/' + section, {
+                event_id: {{event.id}}
+              }, function(data) {
+                // Change the page
+                if (data['success']) {
+                  addDropZone(section);
+                  $('#'+section+' .clear-button').remove();
+                  $('#'+section+' .info').remove();
+                }
+                processing = false;
+              });
+            }
+          });
+        }
+        addClickHandler()
+        clearButton.prependTo('#'+section);
       }
 
       function addDropZone(section) {
@@ -66,6 +71,45 @@
             text: 'Drop ' + section + ' file here.',
           });
 
+          // Sends files to the upload method with the section argument
+          function sendFiles(files, section) {
+            // Prepare the files for upload
+            var data = new FormData();
+            $.each(files, function(key, value) {
+              data.append(key, value)
+            });
+
+            // Upload the files
+            $.ajax({
+              type: 'post',
+              url: $SCRIPT_ROOT + '/upload/' + section + '/' + {{event.id}},
+              data: data,
+              success: function(data) {
+                // Update the view
+                var info = data['info']
+                if (section == 'recipients') {
+                  var info_text = info + ' recipients.'
+                } else {
+                  var info_text = ''
+                  for (var i = 0; i < info.length; i++) {
+                    var type = info[i]
+                    info_text += type['name'] + ': ' + type['count'] + ' codes.\n'
+                  }
+                }
+                dropZone.remove()
+                info_div = $('<div/>', {
+                  class: 'info',
+                  text: info_text,
+                });
+                info_div.appendTo('#' + section);
+                addClearButton(section);
+              },
+              dataType: 'json',
+              processData: false,
+              contentType: false,
+            });
+          }
+
           // Handle drop zone file drop
           function handleFileDrop(event) {
             event.stopPropagation();
@@ -73,11 +117,7 @@
             event.dataTransfer = event.originalEvent.dataTransfer;
             $(dropZone).removeClass('dragover');
             var files = event.dataTransfer.files;
-            sendFiles(files, "lol")
-            for (var i = 0; i < files.length; i++) {
-              var f = files[i];
-              console.log(f.name);
-            }
+            sendFiles(files, section)
           }
 
           // Handle drag over drop zone
@@ -100,16 +140,19 @@
           dropZone.bind('drop', handleFileDrop);
           dropZone.appendTo('#' + section);
       }
+
       {% if code_info %}
+        addClearButton('codes');
       {% else %}
         addDropZone('codes');
       {% endif %}
 
       {% if num_recipients %}
+        addClearButton('recipients');
       {% else %}
         addDropZone('recipients');
       {% endif %}
-
+      /*
       // RECIPIENTS BUTTONS
       $(function() {
         // Clear Recipients
@@ -152,6 +195,7 @@
           }
         });
       });
+      */
 
       // TEMPLATE BUTTONS
       $(function() {

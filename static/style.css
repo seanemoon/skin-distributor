@@ -5,6 +5,10 @@ body {
   margin: 0;
 }
 
+.info {
+  color: #777;
+}
+
 .dragover {
   border: 2px solid #666 !important;
   color: #777;

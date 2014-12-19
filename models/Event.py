@@ -12,6 +12,17 @@ class Event:
         db.commit()
 
     @staticmethod
+    def belongs_to(event_id, account_id, db):
+        c = db.cursor()
+        c.execute('\
+            SELECT account_id\
+            FROM event\
+            WHERE id = ?', (event_id,))
+        result = c.fetchone()
+        print result[0]
+        return result[0] == account_id
+        
+    @staticmethod
     def create(name, account_id, db):
         values = (None, name, account_id)
         event = Event(values)
