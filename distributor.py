@@ -63,7 +63,6 @@ def upload_file(section, event_id):
     if is_logged_in():
         if request.method == 'POST':
             f = request.files['0']
-            print section
             if f and allowed_file(f.filename):
                 filename = secure_filename(str(session['account_id']) + f.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -148,9 +147,6 @@ class CreateTemplateForm(Form):
 def view_template(event_id):
     if not_logged_in(): return request_login();
     template = Template.fetch(event_id, session['account_id'], g.db)
-
-    print (event_id, session['account_id'])
-    print template
     return render_template('email_template.html', template=template)
 
 @app.route('/template/edit/<event_id>', methods=['POST', 'GET'])
@@ -205,7 +201,23 @@ def create_template(event_id):
         else:
             return redirect(url_for('create_template', event_id=event_id))
 
+@app.route('/events/send/<event_id>')
+def send_codes(event_id):
+    result = {'success': False}
+    if is_logged_in():
+        if Event.belongs_to(event_id, session['account_id'], g.db):
+            Recipient.send(event_id, g.db)
+            result = {'success': True}
+    return jsonify(result)
 
+@app.route('/events/status/<event_id>')
+def view_status(event_id):
+    result = {'success': False}
+    if is_logged_in():
+        if Event.belongs_to(event_id, session['account_id'], g.db):
+            status = Recipient.get_status(event_id, g.db)
+            result = {'success': True}
+    return jsonify(result)
 
 @app.route('/events/delete')
 def delete_event():
@@ -258,6 +270,7 @@ def register():
         return redirect(url_for('events'))
     else:
         return redirect(url_for('login_or_register'))
+
 
 @app.route('/logout')
 def logout():

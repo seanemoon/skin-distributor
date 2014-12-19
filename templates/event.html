@@ -21,6 +21,7 @@
         {% else %}
         {% endif %}
       </div>
+
       <div id="codes">
         Codes
         {% if code_info %}
@@ -141,6 +142,45 @@
           dropZone.appendTo('#' + section);
       }
 
+      function addStatusButton() {
+        var statusButton = $('<div/>', {
+            class: 'status',
+            text: 'View Distribution Status'
+        });
+
+        var processing = false;
+        statusButton.click(function() {
+          var url = "{{ url_for('view_status', event_id=event.id) }}"
+          $(location).attr('href', url)
+        });
+        statusButton.appendTo('.event');
+      }
+      function addSendButton() {
+        var sendButton = $('<div/>', {
+            class: 'send',
+            text: 'Send'
+        });
+
+        var processing = false;
+        sendButton.click(function() {
+          if (!processing) {
+            processing = true;
+            console.log('test');
+            $.getJSON($SCRIPT_ROOT + '/events/send/' + {{event.id}}, {
+            }, function(data) {
+              // Change the page
+              console.log(data);
+              if (data['success']) {
+                sendButton.remove();
+                addStatusButton();
+              }
+              processing = false;
+            });
+          }
+        });
+        sendButton.appendTo('.event');
+      }
+
       {% if code_info %}
         addClearButton('codes');
       {% else %}
@@ -152,50 +192,8 @@
       {% else %}
         addDropZone('recipients');
       {% endif %}
-      /*
-      // RECIPIENTS BUTTONS
-      $(function() {
-        // Clear Recipients
-        var processing = false;
-        $('#recipients .clear-button').click(function() {
-          if (!processing) {
-            processing = true
-            $.getJSON("{{url_for('clear_recipients')}}", {
-              event_id: {{event.id}}
-            }, function(data) {
-              // Change the page
-              if (data['success']) {
-                addDropZone('recipients');
-                $('#recipients .clear-button').remove();
-                $('#recipients .info').remove();
-              }
-              processing = false;
-            });
-          }
-        });
-      });
 
-      // CODES BUTTONS
-      $(function() {
-        // Clear Codes
-        var processing = false;
-        $('#codes .clear-button').click(function() {
-          if (!processing) {
-            processing = true;
-            $.getJSON("{{url_for('clear_codes')}}", {
-              event_id: {{event.id}}
-            }, function(data) {
-              if (data['success']) {
-                addDropZone('codes');
-                $('#codes .clear-button').remove();
-                $('#codes .info').remove();
-              }
-              processing = false;
-            });
-          }
-        });
-      });
-      */
+      addSendButton();
 
       // TEMPLATE BUTTONS
       $(function() {

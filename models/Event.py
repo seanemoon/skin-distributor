@@ -19,7 +19,6 @@ class Event:
             FROM event\
             WHERE id = ?', (event_id,))
         result = c.fetchone()
-        print result[0]
         return result[0] == account_id
         
     @staticmethod

@@ -26,6 +26,7 @@ CREATE TABLE recipient (
   event_id    INTEGER REFERENCES event(id),
   email       VARCHAR(320),
   success     BOOLEAN,
+  should_send BOOLEAN,
   time_sent   TIMESTAMP
 );
 
