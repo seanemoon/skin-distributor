@@ -22,9 +22,6 @@
       <div class="codes">
         Code Types
         <div id="code-types">
-        {% for type in code_types %}
-        <div>{{type}}</div>
-        {% endfor %}
         </div>
         <input id=code-type-input type=text autocomplete="off" placeholder="Riot Kayle">
         <input id=add-code-type type=button value='Add code type'>
@@ -41,20 +38,51 @@
   $(document).ready(function() {
     $(function() {
       var code_types = new Array();
-      {% for code in code_types %}
-      code_types[code_types.length] = "{{code|safe}}"
-      {% endfor %}
-      $('form input[type="hidden"]').val(JSON.stringify(code_types))
+
+      function remove_spaces(str) {
+        return str.replace(' ', '');
+      }
+
+      function addCodeType(code_type) {
+        function generateDeleteButton() {
+          var delete_div = $('<div/>', {
+              class: 'delete-button',
+              text: 'Delete'
+          });
+          delete_div.click(function() {
+              var index  = code_types.indexOf(code_type)
+              if (index > -1) {
+                // Remove element at index from the array
+                code_types.splice(index, 1)
+                $('form input[type="hidden"]').val(JSON.stringify(code_types));
+              }
+              console.log(code_types)
+              delete_div.parent().remove()
+          });
+          return delete_div;
+        }
+
+        var code_div = $('<div/>', {
+          id: remove_spaces(code_type),
+          text: code_type,
+        });
+
+        // House keeping of data
+        code_types[code_types.length] = code_type;
+        console.log(code_types)
+        $('form input[type="hidden"]').val(JSON.stringify(code_types));
+        $('#code-type-input').val('');
+
+        var delete_div = generateDeleteButton()
+        code_div.appendTo('#code-types')
+        delete_div.appendTo(code_div)
+      }
 
       // Handler for adding a new code type
       $('#add-code-type').click(function() {
         var type = $('#code-type-input').val()
         if (type.length > 0) {
-          $('#code-types').append($('<div>' + type + '</div>'));
-          code_types[code_types.length] = type;
-          console.log(code_types);
-          $('form input[type="hidden"]').val(JSON.stringify(code_types))
-          $('#code-type-input').val('');
+          addCodeType(type)
         }
       });
 
@@ -65,6 +93,10 @@
           $('#add-code-type').trigger('click');
         }
       });
+
+      {% for type in code_types %}
+        addCodeType("{{type}}")
+      {% endfor %}
     });
   });
   </script>

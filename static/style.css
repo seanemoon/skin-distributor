@@ -129,33 +129,36 @@ input[type="button"] {
   float: right;
 }
 
-
-.view-button, .add-button, .create-button, .edit-button, .clear-button {
+.view-button, .add-button, .create-button, .edit-button, .clear-button, .events .delete, .delete-button {
   display: inline-block;
-  border: 1px solid #eee;
+  border: 1px solid #888;
+  width: 5em;
+  text-align: center;
   float: right;
   margin-left: 1em;
   padding: 0.5em;
   border-radius: 0.3em;
   opacity: 0.8em;
 }
-.view-button:hover, .add-button:hover, .create-button:hover, .edit-button:hover, .clear-button:hover {
+.view-button:hover, .add-button:hover, .create-button:hover, .edit-button:hover, .delete-button:hover, .clear-button:hover {
   cursor:pointer;
-  border: 1px solid #aaa;
+  border: 1px solid #333;
   opacity: 1;
 
 }
 
 .view-button {
   background: #bbddff;
-  color: #555;
 }
 
 .add-button, .create-button {
   background: #bbffbb;
 }
 
-.clear-button {
+.events .delete {
+  opacity: 0;
+}
+.clear-button, .delete-button, .events .delete {
   background: #ffbbbb;
 }
 
@@ -169,7 +172,7 @@ input[type="button"] {
   background: #f5ffff;
   border: 2px dashed #777;
   padding: 2em;
-  margin-top: 2em;
+  margin-top: 1em;
   text-align: center;
 }
 
@@ -242,7 +245,8 @@ form .codes {
   display: inline-block;
 }
 
-#code-types div {
+#code-types > div {
+  overflow: auto;
   width: 100%;
   background-color: #f5f5f5;
   padding: 0.5em;
@@ -299,26 +303,6 @@ ul li {
   overflow: auto;
 }
 
-.events .delete {
-  opacity: 0;
-  background-color: #ff7777;
-  color: white;
-  position: relative;
-  float: right;
-  right: 0;
-  display: inline-block;
-  transition: background .25s ease-in-out;
-  -moz-transition: background .25s ease-in-out;
-  -webkit-transition: background .25s ease-in-out;
-  font-size: 1em;
-  padding: 0.3em 1em;
-}
-
-
-.events .delete:hover {
-  cursor: pointer;
-  background-color: #ee3333;
-}
 
 .events:nth-child(1) {
   margin-top: 0;

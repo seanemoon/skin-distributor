@@ -248,9 +248,9 @@ def view_status(event_id):
 @app.route('/events/delete')
 def delete_event():
     result = {'success': False}
+    id = request.args.get('id', None)
     if is_logged_in() \
-        and Event.belongs_to(event_id, session['account_id'], g.db):
-            id = request.args.get('id', None)
+        and Event.belongs_to(id, session['account_id'], g.db):
             Event.delete(id, g.db)
             result['success'] = True
     return jsonify(result)
