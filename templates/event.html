@@ -97,18 +97,13 @@
                   var info_text = info + ' recipients.'
                 } else {
                   var info_text = ''
-                  console.log(section)
                   for (var i = 0; i < info.length; i++) {
                     var type = info[i]
-                    console.log(type['name'])
                     if (type['name'] == section) {
-                      console.log("ADD THAT SHIT")
                       info_text += type['count'] + ' codes.\n'
                     }
                   }
-                  console.log(info_text)
                 }
-                console.log(info_text)
                 dropZone.remove()
                 info_div = $('<div/>', {
                   class: 'info',
@@ -177,7 +172,6 @@
         sendButton.click(function() {
           if (!processing) {
             processing = true;
-            console.log('test');
             $.getJSON($SCRIPT_ROOT + '/events/send/' + {{event.id}}, {
             }, function(data) {
               // Change the page
@@ -208,7 +202,7 @@
             class: 'info',
             text: num + " codes."
         });
-        div.appendTo('#' + type);
+        div.appendTo('#' + remove_spaces(type));
       }
 
 
