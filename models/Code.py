@@ -37,13 +37,13 @@ class Code:
         return parsed
 
     @staticmethod
-    def upload(event_id, codes, db):
+    def upload(event_id, codes, name, db):
         c = db.cursor()
         for code in codes:
             c.execute('\
                 INSERT INTO code\
                 (event_id, name, code)\
-                VALUES (?, ?, ?)', (event_id, "TEST", code))
+                VALUES (?, ?, ?)', (event_id, name, code))
         db.commit()
 
     @staticmethod
@@ -63,9 +63,9 @@ class Code:
         return parsed
     
     @staticmethod
-    def clear(event_id, db):
+    def clear(event_id, name, db):
         c = db.cursor()
         c.execute('\
             DELETE FROM code\
-            where event_id = ?', (event_id,))
+            where event_id = ? and name = ?', (event_id, name))
         db.commit()

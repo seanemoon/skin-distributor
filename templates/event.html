@@ -7,9 +7,13 @@
         Email Template
         {% if template %}
         <div class="view-button" >View</div>
-        <div class="edit-button">Edit</div>
+        {% if not has_sent %}
+          <div class="edit-button">Edit</div>
+        {% endif %}
         {% else %}
-        <div class="create-button">Create</div>
+        {% if not has_sent %}
+          <div class="create-button">Create</div>
+        {% endif %}
         {% endif %}
       </div>
       <div id="recipients">
@@ -24,19 +28,15 @@
 
       <div id="codes">
         Codes
-        {% if code_info %}
-          <div class="info">
-            {% for code in code_info %}
-              {{ code.name }}: {{ code.count }}
-            {% endfor %}
-          </div>
-        {% else %}
-        {% endif %}
       </div>
     </div>
   </div>
   <script type=text/javascript>
     $(document).ready(function() {
+      function remove_spaces(str) {
+        return str.replace(" ", "")
+      }
+
       function addClearButton(section) {
         var clearButton = $('<div/>', {
           class: 'clear-button',
@@ -44,18 +44,23 @@
         });
 
         function addClickHandler() {
+          var url = $SCRIPT_ROOT + '/clear/'
+          if (section != 'recipients') {
+            url += 'codes/'
+          }
+          url += section
           var processing = false;
           clearButton.click(function() {
             if (!processing) {
               processing = true
-              $.getJSON($SCRIPT_ROOT + '/clear/' + section, {
+              $.getJSON(url, {
                 event_id: {{event.id}}
               }, function(data) {
                 // Change the page
                 if (data['success']) {
                   addDropZone(section);
-                  $('#'+section+' .clear-button').remove();
-                  $('#'+section+' .info').remove();
+                  $('#'+remove_spaces(section)+' .clear-button').remove();
+                  $('#'+remove_spaces(section)+' .info').remove();
                 }
                 processing = false;
               });
@@ -63,7 +68,7 @@
           });
         }
         addClickHandler()
-        clearButton.prependTo('#'+section);
+        clearButton.prependTo('#'+remove_spaces(section));
       }
 
       function addDropZone(section) {
@@ -92,17 +97,24 @@
                   var info_text = info + ' recipients.'
                 } else {
                   var info_text = ''
+                  console.log(section)
                   for (var i = 0; i < info.length; i++) {
                     var type = info[i]
-                    info_text += type['name'] + ': ' + type['count'] + ' codes.\n'
+                    console.log(type['name'])
+                    if (type['name'] == section) {
+                      console.log("ADD THAT SHIT")
+                      info_text += type['count'] + ' codes.\n'
+                    }
                   }
+                  console.log(info_text)
                 }
+                console.log(info_text)
                 dropZone.remove()
                 info_div = $('<div/>', {
                   class: 'info',
                   text: info_text,
                 });
-                info_div.appendTo('#' + section);
+                info_div.appendTo('#' + remove_spaces(section));
                 addClearButton(section);
               },
               dataType: 'json',
@@ -139,7 +151,7 @@
           dropZone.bind('dragover', handleDragOver);
           dropZone.bind('dragleave', handleDragLeave);
           dropZone.bind('drop', handleFileDrop);
-          dropZone.appendTo('#' + section);
+          dropZone.appendTo('#' + remove_spaces(section));
       }
 
       function addStatusButton() {
@@ -182,14 +194,46 @@
         sendButton.appendTo('.event');
       }
 
-      {% if code_info %}
-        addClearButton('codes');
-      {% else %}
-        addDropZone('codes');
-      {% endif %}
+      function addCodeType(type) {
+        var div = $('<div/>', {
+            class: 'code',
+            id: remove_spaces(type),
+            text: type
+        });
+        div.appendTo('#codes');
+      }
+
+      function addInfo(type, num) {
+        var div = $('<div/>', {
+            class: 'info',
+            text: num + " codes."
+        });
+        div.appendTo('#' + type);
+      }
+
+
+      // mapping from code names to counts
+      code_info = new Array();
+      {% for entry in code_info %}
+        code_info["{{entry.name}}"] = {{entry.count}}
+      {% endfor %}
+      {% for type in template.code_types %}
+        type = "{{type}}"
+        addCodeType(type)
+        if (code_info[type] == 0 || code_info[type] == undefined) {
+          addDropZone(type)
+        } else {
+          {% if not has_sent %}
+            addClearButton(type);
+          {% endif %}
+          addInfo(type, code_info[type]);
+        }
+      {% endfor %}
 
       {% if num_recipients %}
-        addClearButton('recipients');
+        {% if not has_sent %}
+          addClearButton('recipients');
+        {% endif %}
       {% else %}
         addDropZone('recipients');
       {% endif %}

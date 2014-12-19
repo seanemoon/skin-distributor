@@ -50,8 +50,8 @@ def allowed_file(filename):
 # section = {recipients, codes}
 @app.route('/upload/<section>/<event_id>', methods=['POST', 'GET'])
 def upload_file(section, event_id):
-    def upload_codes(event_id, codes):
-        Code.upload(event_id, codes, g.db)
+    def upload_codes(event_id, codes, name):
+        Code.upload(event_id, codes, name, g.db)
         code_info = Code.fetch_info(event_id, g.db)
         return code_info
 
@@ -75,16 +75,21 @@ def upload_file(section, event_id):
                         "recipients": upload_recipients,
                         "codes": upload_codes
                     }
-                    info = upload_handlers[section](event_id, values)
+                    if section == "recipients":
+                        info = upload_recipients(event_id, values)
+                    else:
+                        info = upload_codes(event_id, values, str(section))
                     return json.dumps({'success':True, 'info':info}), 200, {'ContentType':'application/json'}
 
-@app.route('/clear/codes')
-def clear_codes():
+@app.route('/clear/codes/<name>')
+def clear_codes(name):
+    print "Clearing code: %s" % name
     result = {'success': False}
+    event_id = request.args.get('event_id', None)
     if is_logged_in() \
-        and Event.belongs_to(event_id, session['account_id'], g.db):
-            event_id = request.args.get('event_id', None)
-            Code.clear(event_id, g.db)
+        and Event.belongs_to(event_id, session['account_id'], g.db) \
+        and not Event.has_sent(event_id, g.db):
+            Code.clear(event_id, name, g.db)
             result = {'success': True}
     return jsonify(result)
 
@@ -92,9 +97,10 @@ def clear_codes():
 @app.route('/clear/recipients')
 def clear_recipients():
     result = {'success': False}
+    event_id = request.args.get('event_id', None)
     if is_logged_in() \
-        and Event.belongs_to(event_id, session['account_id'], g.db):
-            event_id = request.args.get('event_id', None)
+        and Event.belongs_to(event_id, session['account_id'], g.db) \
+        and not Event.has_sent(event_id, g.db):
             Recipient.clear(event_id, g.db)
             result = {'success': True}
     return jsonify(result)
@@ -160,6 +166,8 @@ def edit_template(event_id):
     if not_logged_in() \
         or not Event.belongs_to(event_id, session['account_id'], g.db):
             return request_login()
+    if Event.has_sent(event_id, g.db):
+        return redirect(url_for('view_event', event_id=event_id))
     if request.method == 'GET':
         template = Template.fetch(event_id, g.db)
         form = CreateTemplateForm( \
@@ -192,6 +200,8 @@ def create_template(event_id):
     if not_logged_in() \
         or not Event.belongs_to(event_id, session['account_id'], g.db):
             return request_login();
+    if Event.has_sent(event_id, g.db):
+        return redirect(url_for('view_event', event_id=event_id))
     if request.method == 'GET':
         form = CreateTemplateForm()
         return render_template('create_template.html', form=form, event_id=event_id)

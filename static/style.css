@@ -183,6 +183,14 @@ input[type="button"] {
   overflow: auto;
 } 
 
+.event > div > .code {
+  overflow: auto;
+  border: 1px solid #777;
+  padding: 1em;
+  margin-top: 1em;
+  background-color: #eeffff;
+}
+
 .events .event:hover {
   cursor: pointer;
 }
