@@ -33,9 +33,15 @@
   </div>
   <script type=text/javascript>
     $(document).ready(function() {
-      function remove_spaces(str) {
-        return str.replace(" ", "")
+      function  makeSafeForCSS(name) {
+          return name.replace(/[^a-z0-9]/g, function(s) {
+              var c = s.charCodeAt(0);
+              if (c == 32) return '-';
+              if (c >= 65 && c <= 90) return '_' + s.toLowerCase();
+              return '__' + ('000' + c.toString(16)).slice(-4);
+          });
       }
+
 
       function addClearButton(section) {
         var clearButton = $('<div/>', {
@@ -59,8 +65,8 @@
                 // Change the page
                 if (data['success']) {
                   addDropZone(section);
-                  $('#'+remove_spaces(section)+' .clear-button').remove();
-                  $('#'+remove_spaces(section)+' .info').remove();
+                  $('#'+makeSafeForCSS(section)+' .clear-button').remove();
+                  $('#'+makeSafeForCSS(section)+' .info').remove();
                 }
                 processing = false;
               });
@@ -68,7 +74,7 @@
           });
         }
         addClickHandler()
-        clearButton.prependTo('#'+remove_spaces(section));
+        clearButton.prependTo('#'+makeSafeForCSS(section));
       }
 
       function addDropZone(section) {
@@ -109,7 +115,7 @@
                   class: 'info',
                   text: info_text,
                 });
-                info_div.appendTo('#' + remove_spaces(section));
+                info_div.appendTo('#' + makeSafeForCSS(section));
                 addClearButton(section);
               },
               dataType: 'json',
@@ -146,7 +152,7 @@
           dropZone.bind('dragover', handleDragOver);
           dropZone.bind('dragleave', handleDragLeave);
           dropZone.bind('drop', handleFileDrop);
-          dropZone.appendTo('#' + remove_spaces(section));
+          dropZone.appendTo('#' + makeSafeForCSS(section));
       }
 
       function addStatusButton() {
@@ -191,7 +197,7 @@
       function addCodeType(type) {
         var div = $('<div/>', {
             class: 'code',
-            id: remove_spaces(type),
+            id: makeSafeForCSS(type),
             text: type
         });
         div.appendTo('#codes');
@@ -202,7 +208,7 @@
             class: 'info',
             text: num + " codes."
         });
-        div.appendTo('#' + remove_spaces(type));
+        div.appendTo('#' + makeSafeForCSS(type));
       }
 
 

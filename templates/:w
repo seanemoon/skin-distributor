@@ -39,13 +39,8 @@
     $(function() {
       var code_types = new Array();
 
-      function  makeSafeForCSS(name) {
-          return name.replace(/[^a-z0-9]/g, function(s) {
-              var c = s.charCodeAt(0);
-              if (c == 32) return '-';
-              if (c >= 65 && c <= 90) return '_' + s.toLowerCase();
-              return '__' + ('000' + c.toString(16)).slice(-4);
-          });
+      function remove_spaces(str) {
+        return str.replace(/ /g, '');
       }
 
       function addCodeType(code_type) {
@@ -68,7 +63,7 @@
         }
 
         var code_div = $('<div/>', {
-          id: makeSafeForCSS(code_type),
+          id: remove_spaces(code_type),
           text: code_type,
         });
 

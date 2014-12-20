@@ -17,7 +17,11 @@ app.config.from_envvar('CONFIG', silent=False)
 
 # Returns an open database connection
 def connect_db():
-    return sqlite3.connect(app.config['DATABASE'])
+    db = sqlite3.connect(app.config['DATABASE'])
+    c = db.cursor()
+    c.execute("PRAGMA foreign_keys=ON;")
+    return db
+    
 
 # Ensures that our request object holds an open database connection
 @app.before_request 
