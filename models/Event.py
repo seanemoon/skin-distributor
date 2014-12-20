@@ -16,11 +16,12 @@ class Event:
     @staticmethod
     def has_enough_codes(event_id, account_id, num_recipients, code_info,  db):
         for entry in code_info:
+            print "Entry %s has %s/%s codes!" % (entry['name'], entry['count'], num_recipients)
             if entry['count'] < num_recipients:
                 return False
+        print Template.code_types(event_id, db)
+        print code_info
         return len(Template.code_types(event_id, db)) == len(code_info)
-
-
         
     @staticmethod
     def has_sent(event_id, db):
@@ -41,6 +42,7 @@ class Event:
             FROM event\
             WHERE id = ?', (event_id,))
         result = c.fetchone()
+        if result == None: return False;
         return result[0] == account_id
         
     @staticmethod

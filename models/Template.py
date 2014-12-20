@@ -24,10 +24,13 @@ class Template:
             SELECT code_types\
             FROM template\
             WHERE event_id = ?', (event_id,))
-        result = c.fetchall()
+        result = c.fetchone()
         if result is None: return []
-        parsed = [row[0] for row in result]
-        return parsed
+        print "Unparsed"
+        print result
+        print "Parsed"
+        print json.loads(result[0])
+        return json.loads(result[0])
 
     @staticmethod
     def create(event_id, sender, subject, header, body, code_types, db):

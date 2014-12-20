@@ -43,6 +43,16 @@
       }
 
 
+      // A counter to know when to light up the send button
+      var numSatisfied = 0;
+      function canSend(satisfied) {
+        {% if template %}
+          return satisfied == {{template.code_types | count}} + 1
+        {% else %}
+          return false;
+        {% endif %}
+      }
+
       function addClearButton(section) {
         var clearButton = $('<div/>', {
           class: 'clear-button',
@@ -69,6 +79,8 @@
                   $('#'+makeSafeForCSS(section)+' .info').remove();
                 }
                 processing = false;
+                numSatisfied--;
+                $('.send').removeClass('available');
               });
             }
           });
@@ -92,9 +104,11 @@
             });
 
             // Upload the files
+            url = $SCRIPT_ROOT + '/upload/' + encodeURIComponent(section) + '/' + {{event.id}}
+            console.log(url)
             $.ajax({
               type: 'post',
-              url: $SCRIPT_ROOT + '/upload/' + section + '/' + {{event.id}},
+              url: url,
               data: data,
               success: function(data) {
                 // Update the view
@@ -117,6 +131,10 @@
                 });
                 info_div.appendTo('#' + makeSafeForCSS(section));
                 addClearButton(section);
+                numSatisfied++;
+                if (canSend(numSatisfied)) {
+                  $('.send').addClass('available');
+                }
               },
               dataType: 'json',
               processData: false,
@@ -191,6 +209,9 @@
             });
           }
         });
+        if (canSend(numSatisfied)) {
+          sendButton.addClass('available');
+        }
         sendButton.appendTo('.event');
       }
 
@@ -226,6 +247,7 @@
           {% if not has_sent %}
             addClearButton(type);
           {% endif %}
+          numSatisfied++;
           addInfo(type, code_info[type]);
         }
       {% endfor %}

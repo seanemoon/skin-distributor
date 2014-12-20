@@ -97,7 +97,6 @@ def clear_codes(name):
             result = {'success': True}
     return jsonify(result)
 
-
 @app.route('/clear/recipients')
 def clear_recipients():
     result = {'success': False}

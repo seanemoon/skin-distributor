@@ -12,7 +12,7 @@ create table template (
   subject     varchar,
   header      varchar,
   body        text,
-  code_types  varchar[]
+  code_types  text[]
 );
 
 create table event (

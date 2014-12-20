@@ -5,6 +5,8 @@ body {
   margin: 0;
 }
 
+
+
 .info {
   color: #777;
 }
@@ -193,6 +195,18 @@ input[type="button"] {
   margin-top: 1em;
   background-color: #eeffff;
 }
+
+.event .send {
+  background:  #aaaaaa;
+}
+.available {
+  background: #aaffaa !important;
+
+}
+.available:hover {
+  cursor:pointer !important;
+}
+
 
 .events .event:hover {
   cursor: pointer;
